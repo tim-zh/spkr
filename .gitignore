@@ -3,3 +3,6 @@ target
 /.idea
 /.idea_modules
 /RUNNING_PID
+nginx/*.log
+nginx/nginx.conf
+nginx/nginx.pid
