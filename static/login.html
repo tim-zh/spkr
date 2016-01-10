@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>spkr</title>
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/styles.css">
+
+	<script src="js/jquery-2.1.4.min.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+	<div class="container">
+		<div class="navbar-header">
+			<a class="navbar-brand" href="/">spkr</a>
+		</div>
+	</div>
+</nav>
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-xs-4 col-xs-offset-4">
+			<form class="single-form form-horizontal" id="loginForm">
+				<div class="form-group">
+					<input type="text" placeholder="login" class="form-control" name="name">
+				</div>
+				<div class="form-group">
+					<input type="password" placeholder="password" class="form-control" name="pass">
+				</div>
+				<button type="submit" class="btn btn-default btn-sm" tabindex="-1">sign in</button>
+				<a class="btn-link btn-sm" href="register.html">register</a>
+			</form>
+		</div>
+	</div>
+</div>
+
+<script>
+	$("#loginForm").submit(function(event) {
+		event.preventDefault();
+		$.post("/login", this.serialize(), function(data) {
+			alert(data);
+		});
+	});
+</script>
+</body>
+</html>
