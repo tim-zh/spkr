@@ -25,8 +25,8 @@ createNginxConf := {
 	if (! generatedConfigFile.exists()) {
 		val replacements = Seq(
 			"cores" -> (java.lang.Runtime.getRuntime.availableProcessors() + ""),
-			"pwd" -> (baseDirectory.value/"nginx" getAbsolutePath),
-			"static" -> (baseDirectory.value/"static" getAbsolutePath)
+			"pwd" -> (baseDirectory.value.getAbsolutePath.replace("\\", "/") + "/nginx" ),
+			"static" -> (baseDirectory.value.getAbsolutePath.replace("\\", "/") + "/static")
 		)
 		val pw = new java.io.PrintWriter(generatedConfigFile)
 		scala.io.Source.fromFile(baseDirectory.value/"nginx"/"nginx.template.conf" getAbsolutePath).
