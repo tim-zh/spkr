@@ -1,1 +1,2 @@
-GET     /     controllers.Application.index
+POST    /login            controllers.Application.login
+POST    /register         controllers.Application.register

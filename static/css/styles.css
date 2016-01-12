@@ -6,3 +6,8 @@ body {
 .single-form {
 	padding: 20% 0;
 }
+
+#logoutBtn {
+	padding-top:15px;
+	float:right;
+}

@@ -12,9 +12,8 @@
 <body>
 <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
 	<div class="container">
-		<div class="navbar-header">
-			<a class="navbar-brand" href="/">spkr</a>
-		</div>
+		<a class="navbar-brand" href="/">spkr</a>
+		<button class="btn-link btn-sm" id="logoutBtn" tabindex="-1">logout</button>
 	</div>
 </nav>
 
@@ -32,7 +31,11 @@
 </div>
 
 <script>
-	if (! Cookies.get("id"))
+	$("#logoutBtn").click(function() {
+		Cookies.remove("sid");
+		window.location = "login.html";
+	});
+	if (! Cookies.get("sid"))
 		window.location = "login.html";
 </script>
 </body>
