@@ -1,3 +1,3 @@
 package models
 
-case class User(name: String, pass: String)
+case class User(id: String, name: String, pass: String)
