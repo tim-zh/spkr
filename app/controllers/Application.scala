@@ -1,25 +1,19 @@
 package controllers
 
-import play.api._
+import models.MongoDao
 import play.api.data._
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import play.api.mvc._
-import reactivemongo.bson.BSONDocument
+import reactivemongo.core.errors.ReactiveMongoException
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.reflect.ClassTag
 
 class Application extends Controller {
-  val dao = Global.dao.get
+  val dao = MongoDao
 
-  def index = Action.async {
-    dao.getUsers(BSONDocument()).map { list =>
-      Ok(list.size + "")
-    }
-  }
-
-  def login = Action.async { implicit request =>
+  def authenticate() = Action.async { implicit request =>
     Form(mapping("name" -> nonEmptyText, "pass" -> nonEmptyText)(Login.apply)(Login.unapply)).bindFromRequest.fold(
       bad =>
         Future.successful(Ok(jsonErrors(bad.errors))),
@@ -28,27 +22,28 @@ class Application extends Controller {
           if (user.isDefined)
             Ok(Json.obj("sid" -> user.get.id))
           else
-            Ok(jsonErrors("user" -> "not found"))
+            BadRequest(jsonErrors("user" -> "not found"))
         }
     )
   }
 
-  def register = Action.async { implicit request =>
+  def addUser() = Action.async { implicit request =>
     Form(mapping("name" -> nonEmptyText, "pass" -> nonEmptyText, "pass2" -> nonEmptyText)(Register.apply)(Register.unapply)).bindFromRequest.fold(
       bad =>
-        Future.successful(Ok(jsonErrors(bad.errors))),
+        Future.successful(BadRequest(jsonErrors(bad.errors))),
       form =>
-        //todo pass, unique validation
-        dao.insertUser(form.name, form.pass).flatMap { writeResult =>
+        dao.addUser(form.name, form.pass).flatMap { writeResult =>
           if (writeResult.n != 1)
-            Future.successful(Ok(jsonErrors("user" -> "not found")))
-          val v=dao.getUser(form.name, form.pass)
-              v.map { user =>
+            Future.successful(BadRequest(jsonErrors("user" -> "not found")))
+          dao.getUser(form.name, form.pass).map { user =>
             if (user.isDefined)
               Ok(Json.obj("sid" -> user.get.id))
             else
-              Ok(jsonErrors("user" -> "not found"))
+              BadRequest(jsonErrors("user" -> "not found"))
           }
+        } recover {
+          case e: ReactiveMongoException =>
+            BadRequest(jsonErrors("user" -> e.message))
         }
     )
   }
@@ -60,5 +55,11 @@ class Application extends Controller {
 
   private case class Login(name: String, pass: String)
 
-  private case class Register(name: String, pass: String, pass2: String)
+  private case class Register(name: String, pass: String, pass2: String) {
+    def validate =
+      if (pass != pass2)
+        Seq("pass" -> "passwords don't match")
+      else
+        Nil
+  }
 }

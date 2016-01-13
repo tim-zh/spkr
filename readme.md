@@ -1,2 +1,2 @@
-- install nginx (or any other alternative)
-- then run `sbt nginx` and `sbt nginxStop` to create conf file + start and stop nginx respectively
+- install, run mongodb, execute `load("path/to/conf/mongodb/setup.js")`
+- install nginx, run `sbt nginx` and `sbt nginxStop` to create conf file + start and stop nginx respectively

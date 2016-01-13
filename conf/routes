@@ -1,2 +1,2 @@
-POST    /login            controllers.Application.login
-POST    /register         controllers.Application.register
+POST    /authenticate     controllers.Application.authenticate
+POST    /user/add         controllers.Application.addUser

@@ -10,7 +10,7 @@ libraryDependencies ++= Seq(
 	jdbc,
 	cache,
 	ws,
-	"org.reactivemongo" %% "reactivemongo" % "0.11.9",
+	"org.reactivemongo" %% "play2-reactivemongo" % "0.11.9",
 	"org.scalatest" %% "scalatest" % "2.2.4" % Test
 	)
 
