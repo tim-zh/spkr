@@ -7,6 +7,10 @@ body {
 	padding: 20% 0;
 }
 
+.vertical-block {
+	padding: 10px 0;
+}
+
 #logoutBtn {
 	padding-top:15px;
 	float:right;

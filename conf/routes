@@ -1,2 +1,3 @@
-POST    /authenticate     controllers.Application.authenticate
-POST    /user/add         controllers.Application.addUser
+POST    /authenticate     controllers.Application.authenticate()
+POST    /user/add         controllers.Application.addUser()
+GET     /user/search      controllers.Application.searchUser(q: String ?= "")

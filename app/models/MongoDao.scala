@@ -20,6 +20,9 @@ object MongoDao {
   def getUser(name: String, pass: String) =
     collection("users").find(Json.obj("name" -> name, "pass" -> pass)).one[User]
 
+  def getUsers(nameQuery: String, limit: Int = 20) =
+    collection("users").find(Json.obj("name" -> Json.obj("$regex" -> ("^" + nameQuery)))).cursor[User]().collect[Seq](upTo = limit)
+
   def addUser(name: String, pass: String) =
     collection("users").insert(Json.obj("name" -> name, "pass" -> pass))
 }

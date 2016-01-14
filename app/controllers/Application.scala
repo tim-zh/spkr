@@ -3,12 +3,11 @@ package controllers
 import models.MongoDao
 import play.api.data._
 import play.api.data.Forms._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsString, JsArray, Json}
 import play.api.mvc._
 import reactivemongo.core.errors.ReactiveMongoException
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.reflect.ClassTag
 
 class Application extends Controller {
   val dao = MongoDao
@@ -53,20 +52,10 @@ class Application extends Controller {
     )
   }
 
-
-  private def jsonErrors(message: (String, String)) = Json.arr(Json.obj(message._1 -> message._2))
-
-  private def jsonErrors(messages: Seq[(String, String)]) = Json.arr(messages.map { case (key, message) => Json.obj(key -> message) })
-
-  private def jsonErrors[T <: FormError](messages: Seq[T])(implicit tag: ClassTag[T]) = Json.arr(messages.map { err => Json.obj(err.key -> err.message) })
-
-  private case class Login(name: String, pass: String)
-
-  private case class Register(name: String, pass: String, pass2: String) {
-    def validate =
-      if (pass != pass2)
-        Seq("pass" -> "passwords don't match")
-      else
-        Nil
+  def searchUser(query: String) = Action.async {
+    dao.getUsers(query).map { users =>
+      val jsUsers = JsArray(users.map(user => JsString(user.name)))
+      Ok(jsUsers)
+    }
   }
 }
