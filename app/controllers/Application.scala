@@ -31,25 +31,32 @@ class Application extends Controller {
     Form(mapping("name" -> nonEmptyText, "pass" -> nonEmptyText, "pass2" -> nonEmptyText)(Register.apply)(Register.unapply)).bindFromRequest.fold(
       bad =>
         Future.successful(BadRequest(jsonErrors(bad.errors))),
-      form =>
-        dao.addUser(form.name, form.pass).flatMap { writeResult =>
-          if (writeResult.n != 1)
-            Future.successful(BadRequest(jsonErrors("user" -> "not found")))
-          dao.getUser(form.name, form.pass).map { user =>
-            if (user.isDefined)
-              Ok(Json.obj("sid" -> user.get.id))
-            else
-              BadRequest(jsonErrors("user" -> "not found"))
+      { form =>
+        val errors = form.validate
+        if (errors.nonEmpty)
+          Future.successful(BadRequest(jsonErrors(errors)))
+        else
+          dao.addUser(form.name, form.pass).flatMap { writeResult =>
+            if (writeResult.n != 1)
+              Future.successful(BadRequest(jsonErrors("user" -> "not found")))
+            dao.getUser(form.name, form.pass).map { user =>
+              if (user.isDefined)
+                Ok(Json.obj("sid" -> user.get.id))
+              else
+                BadRequest(jsonErrors("user" -> "not found"))
+            }
+          } recover {
+            case e: ReactiveMongoException =>
+              BadRequest(jsonErrors("user" -> e.message))
           }
-        } recover {
-          case e: ReactiveMongoException =>
-            BadRequest(jsonErrors("user" -> e.message))
-        }
+      }
     )
   }
 
 
-  private def jsonErrors(messages: (String, String)*) = Json.arr(messages.map { case (key, message) => Json.obj(key -> message) })
+  private def jsonErrors(message: (String, String)) = Json.arr(Json.obj(message._1 -> message._2))
+
+  private def jsonErrors(messages: Seq[(String, String)]) = Json.arr(messages.map { case (key, message) => Json.obj(key -> message) })
 
   private def jsonErrors[T <: FormError](messages: Seq[T])(implicit tag: ClassTag[T]) = Json.arr(messages.map { err => Json.obj(err.key -> err.message) })
 

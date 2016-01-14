@@ -37,11 +37,10 @@
 	$("#loginForm").submit(function(event) {
 		event.preventDefault();
 		$.post("/api/authenticate", $("#loginForm").serialize(), function(data) {
-			if (data.sid) {
-				Cookies.set("sid", data.sid);
-				window.location = "/";
-			} else
-				alert(JSON.stringify(data));
+			Cookies.set("sid", data.sid);
+			window.location = "/";
+		}).fail(function(response) {
+			alert(response.responseText);
 		});
 	});
 </script>
