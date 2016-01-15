@@ -67,7 +67,7 @@ class Application extends Controller {
     val title = request.body.asFormUrlEncoded.flatMap(_.get("title")).getOrElse(Seq("")).head
     val participants = request.body.asFormUrlEncoded.flatMap(_.get("participants[]")).getOrElse(Seq[String]())
     if (participants.isEmpty)
-      Ok("0")
+      Ok(jsonErrors("users" -> "empty"))
     else {
       try {
         val userOpts = participants.map(username => Await.result(userDao.get(username), Duration(10, "s")))

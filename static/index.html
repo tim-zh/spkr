@@ -55,7 +55,10 @@
 			</div>
 			<div class="modal-body">
 			</div>
-			<div class="modal-footer">
+			<div class="modal-footer input-group">
+	      <span class="input-group-btn">
+	        <button type="submit" class="btn btn-default btn-sm" id="createConversation">create</button>
+	      </span>
 				<input type="text" placeholder="title" class="form-control input-sm" id="title">
 			</div>
 		</div>
@@ -76,15 +79,24 @@
 			var modalBody = $(".modal-body");
 			modal.on("hidden.bs.modal", function() {
 				modalBody.empty();
+				$("#title").val("");
 			});
+			var participants = [];
 			data.forEach(function(user) {
-				$('<p><button type="submit" class="btn btn-default btn-sm" data-dismiss="modal">' + user + '</button></p>').
-				appendTo(modalBody).click(function() {
-					$.post("/api/conversation/add", { title: $("#title").val(), "participants[]": [user] }, function(response) {
-						if (response == 0)
-							return;
-						modal.modal("hide");
-					});
+				var btn = $('<p><button type="submit" class="btn btn-default btn-sm">' + user + '</button></p>');
+				btn.appendTo(modalBody).click(function(event) {
+					btn.children().toggleClass("active");
+					if (participants.indexOf(user) != -1)
+						participants.splice(participants.indexOf(user), 1);
+					else
+						participants.push(user);
+				});
+			});
+			$("#createConversation").click(function() {
+				$.post("/api/conversation/add", { title: $("#title").val(), "participants[]": participants }, function(response) {
+					if (response != 1)
+						alert(JSON.stringify(response));
+					modal.modal("hide");
 				});
 			});
 			modal.modal("show");
