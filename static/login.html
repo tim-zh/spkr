@@ -38,9 +38,8 @@
 <script>
 	$("#loginForm").submit(function(event) {
 		event.preventDefault();
-		$.post("/api/authenticate", $("#loginForm").serialize(), function(data) {
-			if (data == 1)
-				window.location = "/";
+		$.post("/api/authenticate", $("#loginForm").serialize(), function() {
+			window.location = "/";
 		}).fail(function(response) {
 			alert(response.responseText);
 		});

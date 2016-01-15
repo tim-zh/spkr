@@ -5,7 +5,7 @@ import java.util.concurrent.TimeoutException
 import models.{ConversationDao, UserDao}
 import play.api.data._
 import play.api.data.Forms._
-import play.api.libs.json.{JsString, JsArray}
+import play.api.libs.json._
 import play.api.mvc._
 import reactivemongo.core.errors.ReactiveMongoException
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -23,7 +23,7 @@ class Application extends Controller {
       form =>
         userDao.get(form.name).map { user =>
           if (user.isDefined && user.get.pass == form.pass)
-            Ok("1").withSession("sname" -> user.get.name)
+            Ok("").withSession("sname" -> user.get.name)
           else
             BadRequest(jsonErrors("user" -> "not found"))
         }
@@ -67,21 +67,27 @@ class Application extends Controller {
     val title = request.body.asFormUrlEncoded.flatMap(_.get("title")).getOrElse(Seq("")).head
     val participants = request.body.asFormUrlEncoded.flatMap(_.get("participants[]")).getOrElse(Seq[String]())
     if (participants.isEmpty)
-      Ok(jsonErrors("users" -> "empty"))
+      BadRequest(jsonErrors("users" -> "empty"))
     else {
       try {
         val userOpts = participants.map(username => Await.result(userDao.get(username), Duration(10, "s")))
         if (userOpts.exists(_.isEmpty))
           BadRequest(jsonErrors("user" -> "not found"))
         else {
-          val users = userOpts.map(_.get.name) :+ request.user
+          val users = userOpts.map(_.get.name).filter(request.user != _) :+ request.user
           conversationDao.add(title, users)
-          Ok("1")
+          Ok("")
         }
       } catch {
         case e: TimeoutException =>
           BadRequest(jsonErrors("user" -> e.getMessage))
       }
+    }
+  }
+
+  def listConversations() = Secured.async { request =>
+    conversationDao.listIds(request.user).map { ids =>
+      Ok(JsArray(ids map JsString))
     }
   }
 }
