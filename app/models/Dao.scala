@@ -13,6 +13,8 @@ trait Dao[T] {
 
   protected def collection: JSONCollection = mongoApi.db.collection[JSONCollection](collectionName)
 
+  implicit val reader: Reads[T]
+
   val collectionName: String
 
   def findOne(selector: JsObject) =

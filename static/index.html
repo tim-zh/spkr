@@ -9,6 +9,7 @@
 	<script src="js/jquery-2.1.4.min.js"></script>
 	<script src="js/js.cookie-2.0.4.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
+	<script src="js/main.js"></script>
 </head>
 <body>
 <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -54,13 +55,17 @@
 			</div>
 			<div class="modal-body">
 			</div>
+			<div class="modal-footer">
+				<input type="text" placeholder="title" class="form-control input-sm" id="title">
+			</div>
 		</div>
 	</div>
 </div>
 
 <script>
+	Cookies.set("ssession2","123");
 	$("#logoutBtn").click(function() {
-		Cookies.remove("sid");
+		Cookies.remove("ssession");
 		window.location = "login.html";
 	});
 
@@ -75,7 +80,11 @@
 			data.forEach(function(user) {
 				$('<p><button type="submit" class="btn btn-default btn-sm" data-dismiss="modal">' + user + '</button></p>').
 				appendTo(modalBody).click(function() {
-					modal.modal("hide");
+					$.post("/api/conversation/add", { title: $("#title").val(), "participants[]": [user] }, function(response) {
+						if (response == 0)
+							return;
+						modal.modal("hide");
+					});
 				});
 			});
 			modal.modal("show");
@@ -84,7 +93,7 @@
 		});
 	});
 
-	if (! Cookies.get("sid"))
+	if (! getSessionCookie("sname"))
 		window.location = "login.html";
 </script>
 </body>

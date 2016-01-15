@@ -1,3 +1,4 @@
 POST    /authenticate     controllers.Application.authenticate()
 POST    /user/add         controllers.Application.addUser()
 GET     /user/search      controllers.Application.searchUser(q: String ?= "")
+POST    /conversation/add controllers.Application.addConversation()

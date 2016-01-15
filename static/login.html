@@ -9,6 +9,7 @@
 	<script src="js/jquery-2.1.4.min.js"></script>
 	<script src="js/js.cookie-2.0.4.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
+	<script src="js/main.js"></script>
 </head>
 <body>
 <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -38,8 +39,8 @@
 	$("#loginForm").submit(function(event) {
 		event.preventDefault();
 		$.post("/api/authenticate", $("#loginForm").serialize(), function(data) {
-			Cookies.set("sid", data.sid);
-			window.location = "/";
+			if (data == 1)
+				window.location = "/";
 		}).fail(function(response) {
 			alert(response.responseText);
 		});
