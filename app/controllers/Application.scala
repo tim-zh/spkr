@@ -7,60 +7,52 @@ import play.api.data._
 import play.api.data.Forms._
 import play.api.libs.json._
 import play.api.mvc._
-import reactivemongo.core.errors.ReactiveMongoException
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
+import scala.collection.JavaConversions._
 
 class Application extends Controller {
   val userDao = UserDao
   val conversationDao = ConversationDao
 
-  def authenticate() = Action.async { implicit request =>
+  def authenticate() = Action { implicit request =>
     Form(mapping("name" -> nonEmptyText, "pass" -> nonEmptyText)(Login.apply)(Login.unapply)).bindFromRequest.fold(
       bad =>
-        Future.successful(BadRequest(jsonErrors(bad.errors))),
-      form =>
-        userDao.get(form.name).map { user =>
-          if (user.isDefined && user.get.pass == form.pass)
-            Ok("").withSession("sname" -> user.get.name)
-          else
-            BadRequest(jsonErrors("user" -> "not found"))
-        }
-    )
-  }
-
-  def addUser() = Action.async { implicit request =>
-    Form(mapping("name" -> nonEmptyText, "pass" -> nonEmptyText, "pass2" -> nonEmptyText)(Register.apply)(Register.unapply)).bindFromRequest.fold(
-      bad =>
-        Future.successful(BadRequest(jsonErrors(bad.errors))),
+        BadRequest(jsonErrors(bad.errors)),
       { form =>
-        val errors = form.validate
-        if (errors.nonEmpty)
-          Future.successful(BadRequest(jsonErrors(errors)))
+        val user = userDao.get(form.name)
+        if (user.isDefined && user.get.pass == form.pass)
+          Ok("").withSession("sname" -> user.get.name)
         else
-          userDao.add(form.name, form.pass).flatMap { writeResult =>
-            if (writeResult.n != 1)
-              Future.successful(BadRequest(jsonErrors("user" -> "not found")))
-            userDao.get(form.name).map { user =>
-              if (user.isDefined && user.get.pass == form.pass)
-                Ok("1").withSession("sname" -> user.get.name)
-              else
-                BadRequest(jsonErrors("user" -> "not found"))
-            }
-          } recover {
-            case e: ReactiveMongoException =>
-              BadRequest(jsonErrors("user" -> e.message))
-          }
+          BadRequest(jsonErrors("user" -> "not found"))
       }
     )
   }
 
-  def searchUser(query: String) = Action.async {
-    userDao.list(query).map { users =>
-      val jsUsers = JsArray(users.map(user => JsString(user.name)))
-      Ok(jsUsers)
-    }
+  def addUser() = Action { implicit request =>
+    Form(mapping("name" -> nonEmptyText, "pass" -> nonEmptyText, "pass2" -> nonEmptyText)(Register.apply)(Register.unapply)).bindFromRequest.fold(
+      bad =>
+        BadRequest(jsonErrors(bad.errors)),
+      { form =>
+        val errors = form.validate
+        if (errors.nonEmpty)
+          BadRequest(jsonErrors(errors))
+        else {
+          val keys = userDao.add(form.name, form.pass)
+          if (keys.iterator().hasNext)
+            BadRequest(jsonErrors("user" -> "not found"))
+          val user = userDao.get(form.name)
+          if (user.isDefined && user.get.pass == form.pass)
+            Ok("1").withSession("sname" -> user.get.name)
+          else
+            BadRequest(jsonErrors("user" -> "not found"))
+        }
+      }
+    )
+  }
+
+  def searchUser(query: String) = Action {
+    val users = userDao.list(query)
+    val jsUsers = JsArray(users.map(user => JsString(user.name)))
+    Ok(jsUsers)
   }
 
   def addConversation() = Secured { request =>
@@ -70,7 +62,7 @@ class Application extends Controller {
       BadRequest(jsonErrors("users" -> "empty"))
     else {
       try {
-        val userOpts = participants.map(username => Await.result(userDao.get(username), Duration(10, "s")))
+        val userOpts = participants.map(username => userDao.get(username))
         if (userOpts.exists(_.isEmpty))
           BadRequest(jsonErrors("user" -> "not found"))
         else {
@@ -85,9 +77,7 @@ class Application extends Controller {
     }
   }
 
-  def listConversations() = Secured.async { request =>
-    conversationDao.listIds(request.user).map { ids =>
-      Ok(JsArray(ids map JsString))
-    }
+  def listConversations() = Secured { request =>
+    Ok(JsArray())
   }
 }

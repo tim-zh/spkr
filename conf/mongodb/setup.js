@@ -1,1 +1,0 @@
-db.users.createIndex({ name: 1 }, { unique: 1 });

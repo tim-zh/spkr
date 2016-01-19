@@ -1,20 +1,15 @@
 package models
 
-import play.api.libs.json._
-import play.modules.reactivemongo.json._
-import reactivemongo.api.commands.WriteResult
-import scala.concurrent.Future
+import models.entities.User
+import scala.collection.JavaConversions._
 
-object UserDao extends Dao[User] {
-  override val collectionName: String = "users"
-  override implicit val reader: Reads[User] = User.UserReads
-
+object UserDao extends Dao {
   def get(name: String) =
-    findOne(Json.obj("name" -> name))
+    Option(datastore.find(classOf[User], "name", name).get())
 
   def list(nameQuery: String, limit: Int = 20) =
-    find(Json.obj("name" -> Json.obj("$regex" -> ("^" + nameQuery))))
+    datastore.createQuery(classOf[User]).field("name").startsWithIgnoreCase(nameQuery).limit(limit).asList()
 
-  def add(name: String, pass: String): Future[WriteResult] =
-    add(Json.obj("name" -> name, "pass" -> pass))
+  def add(name: String, pass: String) =
+    datastore.persist(User(name, pass, Seq()))
 }

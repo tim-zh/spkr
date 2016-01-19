@@ -7,10 +7,9 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 scalaVersion := "2.11.7"
 
 libraryDependencies ++= Seq(
-	jdbc,
 	cache,
 	ws,
-	"org.reactivemongo" %% "play2-reactivemongo" % "0.11.9",
+	"org.mongodb.morphia" % "morphia" % "1.1.0",
 	"org.scalatest" %% "scalatest" % "2.2.4" % Test
 	)
 
