@@ -2,7 +2,7 @@ package controllers
 
 import java.util.concurrent.TimeoutException
 
-import models.{ConversationDao, UserDao}
+import models.{ChatDao, UserDao}
 import play.api.data._
 import play.api.data.Forms._
 import play.api.libs.json._
@@ -11,7 +11,7 @@ import scala.collection.JavaConversions._
 
 class Application extends Controller {
 	val userDao = UserDao
-	val conversationDao = ConversationDao
+	val chatDao = ChatDao
 
 	def authenticate() = Action { implicit request =>
 		Form(mapping("name" -> nonEmptyText, "pass" -> nonEmptyText)(Login.apply)(Login.unapply)).bindFromRequest.fold(
@@ -55,7 +55,7 @@ class Application extends Controller {
 		Ok(jsUsers)
 	}
 
-	def addConversation() = Secured { request =>
+	def addChat() = Secured { request =>
 		val title = request.body.asFormUrlEncoded.flatMap(_.get("title")).getOrElse(Seq("")).head
 		val participants = request.body.asFormUrlEncoded.flatMap(_.get("participants[]")).getOrElse(Seq[String]())
 		if (participants.isEmpty)
@@ -67,7 +67,7 @@ class Application extends Controller {
 					BadRequest(jsonErrors("user" -> "not found"))
 				else {
 					val users = userOpts.map(_.get).filter(request.user != _) :+ request.user
-					conversationDao.add(title, users)
+					chatDao.add(title, users)
 					Ok("")
 				}
 			} catch {
@@ -77,7 +77,17 @@ class Application extends Controller {
 		}
 	}
 
-	def listConversations() = Secured { request =>
-		Ok(JsArray(request.user.conversations.flatMap(conversationDao.get).map(c => JsString(c.title))))
+	def listChats() = Secured { request =>
+		Ok(JsArray(request.user.chats.flatMap(x => chatDao.get(x)).map { c =>
+			Json.obj("title" -> c.title, "id" -> c.id.toString)
+		}))
+	}
+
+	def chatHistory(id: String) = Secured { request =>
+		val chatOpt = chatDao.get(id)
+		if (chatOpt.isEmpty)
+			BadRequest(jsonErrors("chat" -> "not found"))
+		else
+			Ok(JsArray(chatOpt.get.history map JsString))
 	}
 }

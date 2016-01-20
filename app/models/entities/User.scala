@@ -9,11 +9,9 @@ case class User(
 		               var name: String,
 		               var pass: String,
 		               @Reference //idOnly doesn't work
-		               var conversations: java.util.List[ObjectId]) {
+		               var chats: java.util.List[ObjectId]) {
 	@Id
 	var id: ObjectId = _
-	@Version
-	var version: Long = _
 
 	def this() = this("", "", new java.util.ArrayList[ObjectId]())
 }

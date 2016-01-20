@@ -36,13 +36,9 @@
 				</div>
 			</div>
 
-			<ul class="list-group">
-				<li class="list-group-item">1</li>
-			</ul>
+			<div class="btn-group-vertical btn-block" id="chatList"></div>
 		</div>
-		<div class="col-xs-9">
-			<div id="chat"></div>
-		</div>
+		<div class="col-xs-9" style="padding: 20px" id="chat"></div>
 	</div>
 </div>
 
@@ -57,7 +53,7 @@
 			</div>
 			<div class="modal-footer input-group">
 	      <span class="input-group-btn">
-	        <button type="submit" class="btn btn-default btn-sm" id="createConversation">create</button>
+	        <button type="submit" class="btn btn-default btn-sm" id="createChat">create</button>
 	      </span>
 				<input type="text" placeholder="title" class="form-control input-sm" id="title">
 			</div>
@@ -91,10 +87,10 @@
 						participants.push(user);
 				});
 			});
-			$("#createConversation").click(function() {
-				$.post("/api/conversation/add", { title: $("#title").val(), "participants[]": participants }, function() {
+			$("#createChat").click(function() {
+				$.post("/api/chat/add", { title: $("#title").val(), "participants[]": participants }, function() {
 					modal.modal("hide");
-					refreshConversations();
+					refreshChats();
 				}).fail(function(response) {
 					alert(response.responseText);
 				});
@@ -108,11 +104,24 @@
 	if (! getSessionCookie("sname"))
 		window.location = "login.html";
 	else
-		refreshConversations();
+		refreshChats();
 
-	function refreshConversations() {
-		$.get("/api/conversation/list", function(data) {
-			alert(JSON.stringify(data));
+	function refreshChats() {
+		$.get("/api/chat/list", function(data) {
+			var chatList = $("#chatList");
+			chatList.empty();
+			data.forEach(function(conv) {
+				$('<button type="button" class="btn btn-default">' + conv.title + '</button>').
+					appendTo(chatList).click(function() {
+						$.get("/api/chat/history", { id: conv.id }, function(history) {
+							var chat = $("#chat");
+							chat.empty();
+							history.forEach(function(msg) {
+								$('<p>' + msg + '</p>').appendTo(chat);
+							});
+						});
+					});
+			});
 		});
 	}
 </script>
