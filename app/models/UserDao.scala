@@ -3,7 +3,7 @@ package models
 import models.entities.User
 import scala.collection.JavaConversions._
 
-object UserDao extends Dao {
+object UserDao extends Dao[User] {
 	def get(name: String) =
 		Option(datastore.find(classOf[User], "name", name).get())
 

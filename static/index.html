@@ -38,7 +38,15 @@
 
 			<div class="btn-group-vertical btn-block" id="chatList"></div>
 		</div>
-		<div class="col-xs-9" style="padding: 20px" id="chat"></div>
+		<div class="col-xs-9" style="padding: 20px">
+			<div class="well" id="chat"></div>
+			<div class="input-group" style="height: 100%">
+	      <span class="input-group-btn" style="height: 100%">
+	        <button class="btn btn-default" style="height: 100%" type="button" id="sendBtn">send</button>
+	      </span>
+				<textarea class="form-control" maxlength="140" id="messageText"></textarea>
+			</div>
+		</div>
 	</div>
 </div>
 
@@ -62,9 +70,22 @@
 </div>
 
 <script>
+	var activeChatId;
+	var activeChatBtn;
+
 	$("#logoutBtn").click(function() {
 		Cookies.remove("ssession");
 		window.location = "login.html";
+	});
+
+	$("#sendBtn").click(function() {
+		var text = $("#messageText");
+		$.post("/api/chat", { chatId: activeChatId, msg: text.val() }, function() {
+			text.val("");
+			refreshHistory();
+		}).fail(function(response) {
+			alert(response.responseText);
+		});
 	});
 
 	$("#searchForm").submit(function(event) {
@@ -111,18 +132,30 @@
 			var chatList = $("#chatList");
 			chatList.empty();
 			data.forEach(function(conv) {
-				$('<button type="button" class="btn btn-default">' + conv.title + '</button>').
-					appendTo(chatList).click(function() {
-						$.get("/api/chat/history", { id: conv.id }, function(history) {
-							var chat = $("#chat");
-							chat.empty();
-							history.forEach(function(msg) {
-								$('<p>' + msg + '</p>').appendTo(chat);
-							});
-						});
-					});
+				var btn = $('<button type="button" class="btn btn-default">' + conv.title + '</button>')
+				btn.appendTo(chatList).click(function() {
+					if (activeChatBtn)
+						activeChatBtn.toggleClass("active");
+					btn.toggleClass("active");
+					activeChatBtn = btn;
+					activeChatId = conv.id;
+					refreshHistory();
+				});
 			});
 		});
+	}
+
+	function refreshHistory() {
+		if (activeChatId)
+			$.get("/api/chat/history", { id: activeChatId }, function(history) {
+				var chat = $("#chat");
+				chat.empty();
+				history.forEach(function(msg) {
+					$('<p>' + msg + '</p>').appendTo(chat);
+				});
+			}).fail(function(response) {
+				alert(response.responseText);
+			});
 	}
 </script>
 </body>

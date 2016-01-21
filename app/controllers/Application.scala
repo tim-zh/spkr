@@ -90,4 +90,20 @@ class Application extends Controller {
 		else
 			Ok(JsArray(chatOpt.get.history map JsString))
 	}
+
+	def writeToChat() = Secured { implicit request =>
+		Form(mapping("chatId" -> nonEmptyText, "msg" -> text(1, 140))(ChatMessage.apply)(ChatMessage.unapply)).bindFromRequest.fold(
+			bad =>
+				BadRequest(jsonErrors(bad.errors)),
+			{ form =>
+				val chatOpt = chatDao.get(form.chatId)
+				if (chatOpt.isDefined) {
+					chatOpt.get.history :+= form.message
+					chatDao.save(chatOpt.get)
+					Ok("")
+				} else
+					BadRequest(jsonErrors("chat" -> "not found"))
+			}
+		)
+	}
 }

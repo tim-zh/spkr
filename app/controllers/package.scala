@@ -19,4 +19,6 @@ package object controllers {
       else
         Nil
   }
+
+  case class ChatMessage(chatId: String, message: String)
 }

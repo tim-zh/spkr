@@ -3,6 +3,14 @@ body {
 	padding-bottom : 20px;
 }
 
+textarea {
+	resize: vertical;
+}
+
+button:focus {
+	outline: none !important;
+}
+
 .single-form {
 	padding: 20% 0;
 }

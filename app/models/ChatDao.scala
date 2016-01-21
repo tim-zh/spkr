@@ -4,7 +4,7 @@ import models.entities.{User, Chat}
 import org.bson.types.ObjectId
 import scala.collection.JavaConversions._
 
-object ChatDao extends Dao {
+object ChatDao extends Dao[Chat] {
 	def add(title: String, users: Seq[User]) = {
 		val chat = Chat(title, Seq(), users.map(_.id))
 		val result = datastore.persist(chat)

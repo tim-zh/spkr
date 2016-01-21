@@ -4,3 +4,4 @@ GET         /user/search         controllers.Application.searchUser(q: String ?=
 POST        /chat/add            controllers.Application.addChat()
 GET         /chat/list           controllers.Application.listChats()
 GET         /chat/history        controllers.Application.chatHistory(id: String ?= "")
+POST        /chat                controllers.Application.writeToChat()
