@@ -151,7 +151,8 @@
 				var chat = $("#chat");
 				chat.empty();
 				history.forEach(function(msg) {
-					$('<p>' + msg + '</p>').appendTo(chat);
+					if (msg.category == "text")
+						$('<p><b>' + msg.author + '</b> (' + msg.date + '): ' + msg.text + '</p>').appendTo(chat);
 				});
 			}).fail(function(response) {
 				alert(response.responseText);

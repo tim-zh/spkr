@@ -1,5 +1,8 @@
 package controllers
 
+import java.util.Date
+
+import models.entities.TextMessage
 import models.{ChatDao, UserDao}
 import play.api.data._
 import play.api.data.Forms._
@@ -46,7 +49,7 @@ class Application extends Controller {
 		if (chatOpt.isEmpty)
 			BadRequest(jsonErrors("chat" -> "not found"))
 		else
-			Ok(JsArray(chatOpt.get.history map JsString))
+			Ok(JsArray(chatOpt.get.history.map(_.json)))
 	}
 
 	def writeToChat() = Secured { implicit request =>
@@ -56,7 +59,7 @@ class Application extends Controller {
 			form => {
 				val chatOpt = chatDao.get(form.chatId)
 				if (chatOpt.isDefined) {
-					chatOpt.get.history :+= form.message
+					chatOpt.get.history :+= TextMessage(form.message, request.user.id, new Date())
 					chatDao.save(chatOpt.get)
 					Ok("")
 				} else

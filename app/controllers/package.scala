@@ -1,9 +1,14 @@
+import java.text.SimpleDateFormat
+
 import play.api.data.FormError
 import play.api.libs.json.Json
 
 import scala.reflect.ClassTag
 
 package object controllers {
+  final val defaultDateFormat = "dd MMM yyyy HH:mm:ss"
+  val defaultDateFormatter = new SimpleDateFormat(controllers.defaultDateFormat)
+
   def jsonErrors(message: (String, String)) = Json.arr(Json.obj(message._1 -> message._2))
 
   def jsonErrors(messages: Seq[(String, String)]) = Json.arr(messages.map { case (key, message) => Json.obj(key -> message) })

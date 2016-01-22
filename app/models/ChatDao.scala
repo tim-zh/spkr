@@ -17,9 +17,6 @@ object ChatDao extends Dao[Chat] {
 		result
 	}
 
-	def get(id: ObjectId) =
-		Option(datastore.get(classOf[Chat], id))
-
 	def get(id: String) =
 		Option(datastore.get(classOf[Chat], new ObjectId(id)))
 }
