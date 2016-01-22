@@ -1,7 +1,5 @@
 package controllers
 
-import java.util.concurrent.TimeoutException
-
 import models.{ChatDao, UserDao}
 import play.api.data._
 import play.api.data.Forms._
@@ -17,7 +15,7 @@ class Application extends Controller {
 		Form(mapping("name" -> nonEmptyText, "pass" -> nonEmptyText)(Login.apply)(Login.unapply)).bindFromRequest.fold(
 			bad =>
 				BadRequest(jsonErrors(bad.errors)),
-			{ form =>
+			form => {
 				val user = userDao.get(form.name)
 				if (user.isDefined && user.get.pass == form.pass)
 					Ok("").withSession("sname" -> user.get.name)
@@ -31,19 +29,16 @@ class Application extends Controller {
 		Form(mapping("name" -> nonEmptyText, "pass" -> nonEmptyText, "pass2" -> nonEmptyText)(Register.apply)(Register.unapply)).bindFromRequest.fold(
 			bad =>
 				BadRequest(jsonErrors(bad.errors)),
-			{ form =>
+			form => {
 				val errors = form.validate
 				if (errors.nonEmpty)
 					BadRequest(jsonErrors(errors))
 				else {
-					val keys = userDao.add(form.name, form.pass)
-					if (keys.iterator().hasNext)
-						BadRequest(jsonErrors("user" -> "not found"))
-					val user = userDao.get(form.name)
-					if (user.isDefined && user.get.pass == form.pass)
-						Ok("1").withSession("sname" -> user.get.name)
+					val result = userDao.add(form.name, form.pass)
+					if (result.isLeft)
+						BadRequest(jsonErrors(result.left.get))
 					else
-						BadRequest(jsonErrors("user" -> "not found"))
+						Ok("").withSession("sname" -> form.name)
 				}
 			}
 		)
@@ -61,18 +56,14 @@ class Application extends Controller {
 		if (participants.isEmpty)
 			BadRequest(jsonErrors("users" -> "empty"))
 		else {
-			try {
-				val userOpts = participants.map(username => userDao.get(username))
-				if (userOpts.exists(_.isEmpty))
-					BadRequest(jsonErrors("user" -> "not found"))
-				else {
-					val users = userOpts.map(_.get).filter(request.user != _) :+ request.user
-					chatDao.add(title, users)
-					Ok("")
-				}
-			} catch {
-				case e: TimeoutException =>
-					BadRequest(jsonErrors("user" -> e.getMessage))
+			val userOpts = participants.map(username => (username, userDao.get(username)))
+			val opt = userOpts.find { case (name, userOpt) => userOpt.isEmpty }
+			if (opt.isDefined && opt.get._2.isEmpty)
+				BadRequest(jsonErrors("user" -> ("not found - " + opt.get._1)))
+			else {
+				val users = userOpts.map(_._2.get).filter(request.user != _) :+ request.user
+				chatDao.add(title, users)
+				Ok("")
 			}
 		}
 	}
@@ -95,7 +86,7 @@ class Application extends Controller {
 		Form(mapping("chatId" -> nonEmptyText, "msg" -> text(1, 140))(ChatMessage.apply)(ChatMessage.unapply)).bindFromRequest.fold(
 			bad =>
 				BadRequest(jsonErrors(bad.errors)),
-			{ form =>
+			form => {
 				val chatOpt = chatDao.get(form.chatId)
 				if (chatOpt.isDefined) {
 					chatOpt.get.history :+= form.message
