@@ -11,39 +11,6 @@ class Application extends Controller {
 	val userDao = UserDao
 	val chatDao = ChatDao
 
-	def authenticate() = Action { implicit request =>
-		Form(mapping("name" -> nonEmptyText, "pass" -> nonEmptyText)(Login.apply)(Login.unapply)).bindFromRequest.fold(
-			bad =>
-				BadRequest(jsonErrors(bad.errors)),
-			form => {
-				val user = userDao.get(form.name)
-				if (user.isDefined && user.get.pass == form.pass)
-					Ok("").withSession("sname" -> user.get.name)
-				else
-					BadRequest(jsonErrors("user" -> "not found"))
-			}
-		)
-	}
-
-	def addUser() = Action { implicit request =>
-		Form(mapping("name" -> nonEmptyText, "pass" -> nonEmptyText, "pass2" -> nonEmptyText)(Register.apply)(Register.unapply)).bindFromRequest.fold(
-			bad =>
-				BadRequest(jsonErrors(bad.errors)),
-			form => {
-				val errors = form.validate
-				if (errors.nonEmpty)
-					BadRequest(jsonErrors(errors))
-				else {
-					val result = userDao.add(form.name, form.pass)
-					if (result.isLeft)
-						BadRequest(jsonErrors(result.left.get))
-					else
-						Ok("").withSession("sname" -> form.name)
-				}
-			}
-		)
-	}
-
 	def searchUser(query: String) = Action {
 		val users = userDao.list(query)
 		val jsUsers = JsArray(users.map(user => JsString(user.name)))

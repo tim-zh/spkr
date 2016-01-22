@@ -12,5 +12,5 @@ case class Chat(
 	@Id
 	var id: ObjectId = _
 
-	def this() = this("", new java.util.ArrayList[String](), new java.util.ArrayList[ObjectId]())
+	def this() = this("", new java.util.ArrayList(), new java.util.ArrayList())
 }

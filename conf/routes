@@ -1,5 +1,6 @@
-POST        /authenticate        controllers.Application.authenticate()
-POST        /user/add            controllers.Application.addUser()
+POST        /authenticate        controllers.Auth.authenticate()
+POST        /user/add            controllers.Auth.addUser()
+
 GET         /user/search         controllers.Application.searchUser(q: String ?= "")
 POST        /chat/add            controllers.Application.addChat()
 GET         /chat/list           controllers.Application.listChats()
