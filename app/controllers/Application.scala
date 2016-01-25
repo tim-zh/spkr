@@ -2,8 +2,9 @@ package controllers
 
 import java.util.Date
 
+import com.google.inject.Inject
 import models.entities.TextMessage
-import models.{ChatDao, UserDao}
+import models.{Dao, ChatDao, UserDao}
 import play.api.data._
 import play.api.data.Forms._
 import play.api.libs.json._
@@ -11,8 +12,10 @@ import play.api.mvc._
 import scala.collection.JavaConversions._
 
 class Application extends Controller {
-	val userDao = UserDao
-	val chatDao = ChatDao
+	@Inject
+	var dao: Dao = _
+	lazy val userDao: UserDao = dao.user
+	lazy val chatDao: ChatDao = dao.chat
 
 	def searchUser(query: String) = Action {
 		val users = userDao.list(query)

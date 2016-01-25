@@ -7,6 +7,8 @@ object DS {
   private val morphia = new Morphia
   morphia.mapPackage("app.models.entities")
 
+  lazy val datastore = apply("localhost", 27017, "test")
+
   def apply(host: String, port: Int, dbName: String) = {
     val result = new DSImpl(morphia, new MongoClient(host, port), dbName)
     result.ensureIndexes()

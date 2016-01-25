@@ -1,12 +1,15 @@
 package controllers
 
-import models.UserDao
+import com.google.inject.Inject
+import models.{Dao, UserDao}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc.{Action, Controller}
 
 class Auth extends Controller {
-  val userDao = UserDao
+  @Inject
+  var dao: Dao = _
+  lazy val userDao: UserDao = dao.user
 
   def authenticate() = Action { implicit request =>
     Form(mapping("name" -> nonEmptyText, "pass" -> nonEmptyText)(Login.apply)(Login.unapply)).bindFromRequest.fold(
