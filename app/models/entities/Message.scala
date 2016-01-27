@@ -1,8 +1,11 @@
 package models.entities
 
+import java.text.SimpleDateFormat
 import java.util.Date
 
-import models.StaticInjections
+import com.google.inject.Inject
+import com.google.inject.name.Named
+import models.Dao
 import org.bson.types.ObjectId
 import org.mongodb.morphia.annotations.Embedded
 import play.api.libs.json.{JsObject, JsString, Json}
@@ -11,10 +14,17 @@ sealed abstract class Message(
                                  var category: String,
                                  var _author: ObjectId,
                                  var _date: Date) {
+  @Inject
+  var dao: Dao = _
+
+  @Inject
+  @Named("default")
+  var dateFormat: SimpleDateFormat = _
+
   def json: JsObject = Json.obj(
     "category" -> category,
-    "author" -> String.valueOf(StaticInjections.dao.user.get(_author).map(_.name).getOrElse("")),
-    "date" -> StaticInjections.dateFormat.format(_date))
+    "author" -> String.valueOf(dao.user.get(_author).map(_.name).getOrElse("")),
+    "date" -> dateFormat.format(_date))
 }
 
 @Embedded
