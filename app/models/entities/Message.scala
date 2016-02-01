@@ -7,32 +7,28 @@ import com.google.inject.Inject
 import com.google.inject.name.Named
 import models.Dao
 import org.bson.types.ObjectId
-import org.mongodb.morphia.annotations.Embedded
+import org.mongodb.morphia.annotations.{Transient, Embedded}
 import play.api.libs.json.{JsObject, JsString, Json}
 
-sealed abstract class Message(
-                                 var category: String,
-                                 var _author: ObjectId,
-                                 var _date: Date) {
+@Embedded
+case class Message(var text: String,
+                   var audio: Array[Byte],
+                   var author: ObjectId,
+                   var date: Date) {
+  @Transient
   @Inject
   var dao: Dao = _
 
+  @Transient
   @Inject
   @Named("default")
   var dateFormat: SimpleDateFormat = _
 
+  def this() = this("", null, null, null)
+
   def json: JsObject = Json.obj(
-    "category" -> category,
-    "author" -> String.valueOf(dao.user.get(_author).map(_.name).getOrElse("")),
-    "date" -> dateFormat.format(_date))
-}
-
-@Embedded
-case class TextMessage(
-                          var text: String,
-                          var author: ObjectId,
-                          var date: Date) extends Message("text", author, date) {
-  def this() = this("", null, null)
-
-  override def json = super.json + ("text" -> JsString(text))
+    "author" -> String.valueOf(dao.user.get(author).map(_.name).getOrElse("")),
+    "date" -> dateFormat.format(date),
+    "text" -> JsString(text)
+  )
 }

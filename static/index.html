@@ -9,6 +9,7 @@
 	<script src="js/jquery-2.1.4.min.js"></script>
 	<script src="js/js.cookie-2.0.4.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
+	<script src="js/MediaStreamRecorder.min.js"></script>
 	<script src="js/main.js"></script>
 </head>
 <body>
@@ -40,11 +41,19 @@
 		</div>
 		<div class="col-xs-9" style="padding: 20px">
 			<div class="well" id="chat"></div>
-			<div class="input-group" style="height: 100%">
-	      <span class="input-group-btn" style="height: 100%">
-	        <button class="btn btn-default" style="height: 100%" type="button" id="sendBtn">send</button>
-	      </span>
-				<textarea class="form-control" maxlength="140" id="messageText"></textarea>
+
+			<div class="row">
+				<div class="col-xs-2">
+					<button class="btn btn-default" style="width: 100%" type="button" id="sendBtn">send</button>
+				</div>
+				<div class="col-xs-10">
+					<p>
+						<button class="btn btn-default" type="button" id="startBtn">start</button>
+						<button class="btn btn-default" type="button" id="pauseBtn">pause</button>
+						<button class="btn btn-default" type="button" id="stopBtn">stop</button>
+					</p>
+					<textarea class="form-control" maxlength="140" id="messageText"></textarea>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -79,7 +88,7 @@
 
 	$("#sendBtn").click(function() {
 		var text = $("#messageText");
-		$.post("/api/chat", { chatId: activeChatId, msg: text.val() }, function() {
+		postWithRecord("/api/chat", { chatId: activeChatId, msg: text.val() }).done(function() {
 			text.val("");
 			refreshHistory();
 		}).fail(function(response) {
@@ -123,8 +132,10 @@
 
 	if (! getSessionCookie("sname"))
 		window.location = "login.html";
-	else
+	else {
 		refreshChats();
+		initRecorder($("#startBtn"), $("#pauseBtn"), $("#stopBtn"));
+	}
 
 	function refreshChats() {
 		$.get("/api/chat/list", function(data) {
@@ -146,8 +157,7 @@
 				var chat = $("#chat");
 				chat.empty();
 				history.forEach(function(msg) {
-					if (msg.category == "text")
-						$('<p><b>' + msg.author + '</b> (' + msg.date + '): ' + msg.text + '</p>').appendTo(chat);
+					$('<p><b>' + msg.author + '</b> (' + msg.date + '): ' + msg.text + '</p>').appendTo(chat);
 				});
 			}).fail(function(response) {
 				alert(response.responseText);

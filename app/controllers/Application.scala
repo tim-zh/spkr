@@ -1,9 +1,10 @@
 package controllers
 
+import java.nio.file.Files
 import java.util.Date
 
 import com.google.inject.Inject
-import models.entities.TextMessage
+import models.entities.Message
 import models.{Dao, ChatDao, UserDao}
 import play.api.data._
 import play.api.data.Forms._
@@ -55,14 +56,15 @@ class Application extends Controller {
 			Ok(JsArray(chatOpt.get.history.map(_.json)))
 	}
 
-	def writeToChat() = Secured { implicit request =>
+	def writeToChat() = Secured(parse.multipartFormData) { implicit request =>
 		Form(mapping("chatId" -> nonEmptyText, "msg" -> text(1, 140))(ChatMessage.apply)(ChatMessage.unapply)).bindFromRequest.fold(
 			bad =>
 				BadRequest(jsonErrors(bad.errors)),
 			form => {
 				val chatOpt = chatDao.get(form.chatId)
 				if (chatOpt.isDefined) {
-					chatOpt.get.history :+= TextMessage(form.message, request.user.id, new Date())
+					val audio = request.body.file("record").map(file => Files.readAllBytes(file.ref.file.toPath)).getOrElse(Array())
+					chatOpt.get.history :+= Message(form.message, audio, request.user.id, new Date())
 					chatDao.save(chatOpt.get)
 					Ok("")
 				} else
