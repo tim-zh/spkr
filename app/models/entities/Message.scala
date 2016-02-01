@@ -29,6 +29,7 @@ case class Message(var text: String,
   def json: JsObject = Json.obj(
     "author" -> String.valueOf(dao.user.get(author).map(_.name).getOrElse("")),
     "date" -> dateFormat.format(date),
-    "text" -> JsString(text)
+    "text" -> JsString(text),
+    "audio" -> audio
   )
 }
