@@ -142,7 +142,7 @@
 			var chatList = $("#chatList");
 			chatList.empty();
 			data.forEach(function(conv) {
-				var btn = $('<label class="btn btn-default"><input type="radio">' + conv.title + '</label>')
+				var btn = $('<label class="btn btn-default"><input type="radio">' + conv.title + '</label>');
 				btn.appendTo(chatList).click(function() {
 					activeChatId = conv.id;
 					refreshHistory();
@@ -157,7 +157,10 @@
 				var chat = $("#chat");
 				chat.empty();
 				history.forEach(function(msg) {
-					$('<p><b>' + msg.author + '</b> (' + msg.date + '): ' + msg.text + '</p>').appendTo(chat);
+					var audio = "";
+					if (msg.audio.length)
+						audio = '<a href="' + URL.createObjectURL(new Blob(msg.audio, { type: "audio/ogg" })) + '">></a> ';
+					$('<p><b>' + msg.author + '</b> (' + msg.date + '): ' + audio + msg.text + '</p>').appendTo(chat);
 				});
 			}).fail(function(response) {
 				alert(response.responseText);

@@ -1,5 +1,5 @@
 function getSessionCookie(key) {
-	var value = Cookies.get("ssession")
+	var value = Cookies.get("ssession");
 	if (! value)
 		return undefined;
 	value = value.substring(value.indexOf("-") + 1);
@@ -59,9 +59,9 @@ function getSessionCookie(key) {
 		var fd = new FormData();
 		for (var key in data)
 			fd.append(key, data[key]);
-    fd.set('record', record);
+    fd.set("record", record);
     return $.ajax({
-      type: 'POST',
+      type: "POST",
       url: url,
       data: fd,
       processData: false,
