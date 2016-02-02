@@ -1,16 +1,20 @@
 package controllers
 
+import java.io.ByteArrayInputStream
 import java.nio.file.Files
 import java.util.Date
 
 import com.google.inject.Inject
-import models.entities.Message
-import models.{Dao, ChatDao, UserDao}
-import play.api.data._
+import models.entities.{Audio, Message}
+import models.{ChatDao, Dao, UserDao}
 import play.api.data.Forms._
+import play.api.data._
+import play.api.libs.iteratee.Enumerator
 import play.api.libs.json._
 import play.api.mvc._
+
 import scala.collection.JavaConversions._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class Application extends Controller {
 	@Inject
@@ -63,13 +67,34 @@ class Application extends Controller {
 			form => {
 				val chatOpt = chatDao.get(form.chatId)
 				if (chatOpt.isDefined) {
-					val audio = request.body.file("record").map(file => Files.readAllBytes(file.ref.file.toPath)).getOrElse(Array())
-					chatOpt.get.history :+= Message(form.message, audio, request.user.id, new Date())
+					val audioData = request.body.file("record").map(file => Files.readAllBytes(file.ref.file.toPath)).orNull
+					val audioId = if (audioData == null)
+						""
+					else {
+						val audio = Audio(audioData)
+						chatDao.saveAudio(audio)
+						audio.id.toString
+					}
+					chatOpt.get.history :+= Message(form.message, audioId, request.user.id, new Date())
 					chatDao.save(chatOpt.get)
 					Ok("")
 				} else
 					BadRequest(jsonErrors("chat" -> "not found"))
 			}
 		)
+	}
+
+	def getAudio(id: String) = Secured {
+		chatDao.getAudio(id) map { audio =>
+			val name = audio.id.toString
+			Result(
+				ResponseHeader(200, Map(
+					CONTENT_LENGTH -> audio.data.length.toString,
+					CONTENT_TYPE -> "audio/ogg",
+					CONTENT_DISPOSITION -> ("attachment; filename=\"" + name + "\"")
+				)),
+				Enumerator.fromStream(new ByteArrayInputStream(audio.data))
+			)
+		} getOrElse BadRequest(jsonErrors("audio" -> "not found"))
 	}
 }

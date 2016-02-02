@@ -52,4 +52,10 @@ class ChatDaoImpl extends BaseDaoImpl[Chat] with ChatDao {
 
   override def get(id: String): Option[Chat] =
     Option(datastore.get(classOf[Chat], new ObjectId(id)))
+
+  override def saveAudio(entity: Audio) =
+    datastore.persist(entity)
+
+  override def getAudio(id: String) =
+    Option(datastore.get(classOf[Audio], new ObjectId(id)))
 }

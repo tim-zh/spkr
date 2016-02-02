@@ -7,7 +7,6 @@ import org.mongodb.morphia.annotations._
 case class User(@Indexed(options = new IndexOptions(unique = true))
                 var name: String,
                 var pass: String,
-                @Reference //idOnly doesn't work
                 var chats: java.util.List[ObjectId]) {
   @Id
   var id: ObjectId = _

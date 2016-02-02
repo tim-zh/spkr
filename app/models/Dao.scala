@@ -2,7 +2,7 @@ package models
 
 import java.lang
 
-import models.entities.{Chat, User}
+import models.entities._
 import org.bson.types.ObjectId
 import org.mongodb.morphia.Key
 
@@ -32,4 +32,8 @@ trait ChatDao extends BaseDao[Chat] {
   def add(title: String, users: Seq[User]): lang.Iterable[Key[Chat]]
 
   def get(id: String): Option[Chat]
+
+  def saveAudio(entity: Audio): lang.Iterable[Key[Audio]]
+
+  def getAudio(id: String): Option[Audio]
 }

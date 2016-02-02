@@ -7,12 +7,12 @@ import com.google.inject.Inject
 import com.google.inject.name.Named
 import models.Dao
 import org.bson.types.ObjectId
-import org.mongodb.morphia.annotations.{Transient, Embedded}
+import org.mongodb.morphia.annotations._
 import play.api.libs.json.{JsObject, JsString, Json}
 
 @Embedded
 case class Message(var text: String,
-                   var audio: Array[Byte],
+                   var audioId: String,
                    var author: ObjectId,
                    var date: Date) {
   @Transient
@@ -30,6 +30,6 @@ case class Message(var text: String,
     "author" -> String.valueOf(dao.user.get(author).map(_.name).getOrElse("")),
     "date" -> dateFormat.format(date),
     "text" -> JsString(text),
-    "audio" -> audio
+    "audio" -> audioId
   )
 }
