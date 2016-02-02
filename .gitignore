@@ -6,3 +6,5 @@ target
 nginx/*.log
 nginx/nginx.conf
 nginx/nginx.pid
+start
+stop

@@ -40,17 +40,37 @@ createNginxConf := {
 	}
 }
 
-val nginx = taskKey[Unit]("run nginx for static content")
+val setup = taskKey[Unit]("create nginx.conf and start/stop scripts for nginx and mongodb")
 
-nginx := {
+setup := {
 	createNginxConf.value
 	val path = baseDirectory.value/"nginx" getAbsolutePath;
-	s"nginx -c $path/nginx.conf" !
+	write("start") { pw =>
+		val content =
+			s"""#!/bin/bash
+				 |nginx -c $path/nginx.conf
+				 |mongod
+			 """.stripMargin
+		pw.print(content)
+	}
+	"chmod u+x start".!
+
+	write("stop") { pw =>
+		val content =
+			s"""#!/bin/bash
+			    |nginx -c $path/nginx.conf -s quit
+					|mongod --shutdown
+			 """.stripMargin
+		pw.print(content)
+	}
+	"chmod u+x stop".!
 }
 
-val nginxStop = taskKey[Unit]("stop nginx")
-
-nginxStop := {
-	val path = baseDirectory.value/"nginx" getAbsolutePath;
-	s"nginx -c $path/nginx.conf -s quit" !
+def write(filename: String)(f: java.io.PrintWriter => Unit) = {
+	val file = new File(filename)
+	val printWriter = new java.io.PrintWriter(file)
+	try
+		f(printWriter)
+	finally
+		printWriter.close()
 }
