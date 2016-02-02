@@ -157,10 +157,13 @@
 				var chat = $("#chat");
 				chat.empty();
 				history.forEach(function(msg) {
-					var audio = "";
-					if (msg.audio.length)
-						audio = '<a href="' + URL.createObjectURL(new Blob(msg.audio, { type: "audio/ogg" })) + '">></a> ';
-					$('<p><b>' + msg.author + '</b> (' + msg.date + '): ' + audio + msg.text + '</p>').appendTo(chat);
+					if (! msg.audio)
+						$('<p><b>' + msg.author + '</b> (' + msg.date + '): ' + msg.text + '</p>').appendTo(chat);
+					else
+						$.get("api/chat/audio", { id: msg.audio }, function(data) {
+							var audio = '<a href="' + URL.createObjectURL(new Blob([data], { type: "audio/ogg" })) + '">></a> ';
+							$('<p><b>' + msg.author + '</b> (' + msg.date + '): ' + audio + msg.text + '</p>').appendTo(chat);
+						});
 				});
 			}).fail(function(response) {
 				alert(response.responseText);
