@@ -6,7 +6,7 @@
 	<link rel="stylesheet" href="css/bootstrap.min.css">
 	<link rel="stylesheet" href="css/styles.css">
 
-	<script src="js/jquery-2.1.4.min.js"></script>
+	<script src="js/jquery-2.2.0.min.js"></script>
 	<script src="js/js.cookie-2.0.4.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
 	<script src="js/MediaStreamRecorder.min.js"></script>
@@ -160,9 +160,15 @@
 					if (! msg.audio)
 						$('<p><b>' + msg.author + '</b> (' + msg.date + '): ' + msg.text + '</p>').appendTo(chat);
 					else
-						$.get("api/chat/audio", { id: msg.audio }, function(data) {
+						$.ajax({
+							url: "api/chat/audio",
+							data: { id: msg.audio },
+							xhrFields: { responseType: "arraybuffer" }
+						}).done(function(data) {
 							var audio = '<a href="' + URL.createObjectURL(new Blob([data], { type: "audio/ogg" })) + '">></a> ';
 							$('<p><b>' + msg.author + '</b> (' + msg.date + '): ' + audio + msg.text + '</p>').appendTo(chat);
+						}).fail(function(response) {
+							alert(response.responseText);
 						});
 				});
 			}).fail(function(response) {

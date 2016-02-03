@@ -6,7 +6,7 @@
 	<link rel="stylesheet" href="css/bootstrap.min.css">
 	<link rel="stylesheet" href="css/styles.css">
 
-	<script src="js/jquery-2.1.4.min.js"></script>
+	<script src="js/jquery-2.2.0.min.js"></script>
 	<script src="js/js.cookie-2.0.4.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
 	<script src="js/main.js"></script>
@@ -41,8 +41,7 @@
 	$("#registerForm").submit(function(event) {
 		event.preventDefault();
 		$.post("/api/user/add", $("#registerForm").serialize(), function(data) {
-			if (data == 1)
-				window.location = "/";
+			window.location = "/";
 		}).fail(function(response) {
 			alert(response.responseText);
 		});
