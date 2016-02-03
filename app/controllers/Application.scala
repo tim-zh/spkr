@@ -57,7 +57,7 @@ class Application extends Controller {
 		if (chatOpt.isEmpty)
 			BadRequest(jsonErrors("chat" -> "not found"))
 		else
-			Ok(JsArray(chatOpt.get.history.map(_.json)))
+			Ok(JsArray(chatOpt.get.orderedHistory.map(_.json)))
 	}
 
 	def writeToChat() = Secured(parse.multipartFormData) { implicit request =>
@@ -67,14 +67,12 @@ class Application extends Controller {
 			form => {
 				val chatOpt = chatDao.get(form.chatId)
 				if (chatOpt.isDefined) {
-					val audioData = request.body.file("record").map(file => Files.readAllBytes(file.ref.file.toPath)).orNull
-					val audioId = if (audioData == null)
-						""
-					else {
-						val audio = Audio(audioData)
+					val audioId = request.body.file("record").map { file =>
+						val byteArray = Files.readAllBytes(file.ref.file.toPath)
+						val audio = Audio(byteArray)
 						chatDao.saveAudio(audio)
 						audio.id.toString
-					}
+					} getOrElse ""
 					chatOpt.get.history :+= Message(form.message, audioId, request.user.id, new Date())
 					chatDao.save(chatOpt.get)
 					Ok("")
@@ -90,7 +88,6 @@ class Application extends Controller {
 			Result(
 				ResponseHeader(200, Map(
 					CONTENT_LENGTH -> audio.data.length.toString,
-					CONTENT_TYPE -> "audio/ogg",
 					CONTENT_DISPOSITION -> ("attachment; filename=\"" + name + "\"")
 				)),
 				Enumerator.fromStream(new ByteArrayInputStream(audio.data))

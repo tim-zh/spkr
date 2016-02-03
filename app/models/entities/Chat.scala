@@ -2,6 +2,7 @@ package models.entities
 
 import org.bson.types.ObjectId
 import org.mongodb.morphia.annotations._
+import scala.collection.JavaConversions._
 
 @Entity(value = "chats", noClassnameStored = true)
 case class Chat(var title: String,
@@ -12,4 +13,6 @@ case class Chat(var title: String,
   var id: ObjectId = _
 
   def this() = this("", new java.util.ArrayList(), new java.util.ArrayList())
+
+  def orderedHistory = history.sortBy(_.date).toSeq
 }
