@@ -41,8 +41,7 @@
 	$("#registerForm").submit(function(event) {
 		event.preventDefault();
 		$.post("/api/user/add", $("#registerForm").serialize(), function(data) {
-			if (data == 1)
-				window.location = "/";
+			window.location = "/";
 		}).fail(function(response) {
 			alert(response.responseText);
 		});
