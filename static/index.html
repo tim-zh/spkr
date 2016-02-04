@@ -157,18 +157,22 @@
 				var chat = $("#chat");
 				chat.empty();
 				history.forEach(function(msg) {
-					if (! msg.audio)
-						$('<p><b>' + msg.author + '</b> (' + msg.date + '): ' + msg.text + '</p>').appendTo(chat);
-					else
-						$.ajax({
-							url: "api/chat/audio",
-							data: { id: msg.audio },
-							xhrFields: { responseType: "arraybuffer" }
-						}).done(function(data) {
-							var audio = '<a href="' + URL.createObjectURL(new Blob([data], { type: "audio/ogg" })) + '">></a> ';
-							$('<p><b>' + msg.author + '</b> (' + msg.date + '): ' + audio + msg.text + '</p>').appendTo(chat);
-						}).fail(function(response) {
-							alert(response.responseText);
+					var chatEntry = $('<p><b>' + msg.author + '</b> (' + msg.date + '): ' + msg.text + '</p>');
+					chatEntry.appendTo(chat);
+					if (msg.audio)
+						var playBtn = $('<button type="button" class="btn btn-default btn-sm" style="margin: 0 4px;padding: 0 4px;border:none">play</button>');
+						playBtn.appendTo(chatEntry).click(function() {
+							$.ajax({
+								url: "api/chat/audio",
+								data: { id: msg.audio },
+								xhrFields: { responseType: "arraybuffer" }
+							}).done(function(data) {
+								playBtn.hide();
+								$("<audio/>", { controls: true, src: URL.createObjectURL(new Blob([data], { type: "audio/ogg" })) }).
+									appendTo(chatEntry)[0].play();
+							}).fail(function(response) {
+								alert(response.responseText);
+							});
 						});
 				});
 			}).fail(function(response) {

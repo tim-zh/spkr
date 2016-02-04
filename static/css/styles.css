@@ -11,6 +11,11 @@ button:focus {
 	outline: none !important;
 }
 
+audio {
+	margin: 0 4px;
+	height: 1em;
+}
+
 .single-form {
 	padding: 20% 0;
 }
@@ -20,6 +25,11 @@ button:focus {
 }
 
 #logoutBtn {
-	padding-top:15px;
-	float:right;
+	padding-top: 15px;
+	float: right;
+}
+
+#chat p {
+	line-height: 2;
+	word-wrap: break-word;
 }
