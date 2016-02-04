@@ -48,9 +48,10 @@
 				</div>
 				<div class="col-xs-10">
 					<p>
-						<button class="btn btn-default" type="button" id="startBtn">start</button>
-						<button class="btn btn-default" type="button" id="pauseBtn">pause</button>
-						<button class="btn btn-default" type="button" id="stopBtn">stop</button>
+						<button class="btn btn-default" type="button" id="startBtn">●</button>
+						<button class="btn btn-default" type="button" id="pauseBtn">▮▮</button>
+						<button class="btn btn-default" type="button" id="stopBtn">◾</button>
+						<audio id="replay" style="vertical-align: middle" controls></audio>
 					</p>
 					<textarea class="form-control" maxlength="140" id="messageText"></textarea>
 				</div>
@@ -134,7 +135,7 @@
 		window.location = "login.html";
 	else {
 		refreshChats();
-		initRecorder($("#startBtn"), $("#pauseBtn"), $("#stopBtn"));
+		initRecorder($("#startBtn"), $("#pauseBtn"), $("#stopBtn"), $("#replay"));
 	}
 
 	function refreshChats() {
@@ -160,7 +161,7 @@
 					var chatEntry = $('<p><b>' + msg.author + '</b> (' + msg.date + '): ' + msg.text + '</p>');
 					chatEntry.appendTo(chat);
 					if (msg.audio)
-						var playBtn = $('<button type="button" class="btn btn-default btn-sm" style="margin: 0 4px;padding: 0 4px;border:none">play</button>');
+						var playBtn = $('<button type="button" class="btn btn-default btn-sm play-btn">play</button>');
 						playBtn.appendTo(chatEntry).click(function() {
 							$.ajax({
 								url: "api/chat/audio",
@@ -168,8 +169,7 @@
 								xhrFields: { responseType: "arraybuffer" }
 							}).done(function(data) {
 								playBtn.hide();
-								$("<audio/>", { controls: true, src: URL.createObjectURL(new Blob([data], { type: "audio/ogg" })) }).
-									appendTo(chatEntry)[0].play();
+								createAudio(data).appendTo(chatEntry);
 							}).fail(function(response) {
 								alert(response.responseText);
 							});

@@ -12,8 +12,7 @@ button:focus {
 }
 
 audio {
-	margin: 0 4px;
-	height: 1em;
+	margin: 0 4px -8px 4px;
 }
 
 .single-form {
@@ -24,12 +23,23 @@ audio {
 	padding: 10px 0;
 }
 
+.play-btn {
+	margin: 0 4px;
+	padding: 0 4px;
+	border: none;
+}
+
 #logoutBtn {
 	padding-top: 15px;
 	float: right;
 }
 
+#replay {
+	margin: 0;
+	display: none;
+}
+
 #chat p {
-	line-height: 2;
+	line-height: 3;
 	word-wrap: break-word;
 }

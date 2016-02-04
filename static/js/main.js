@@ -10,10 +10,19 @@ function getSessionCookie(key) {
 	})[0][1];
 }
 
+function createAudio(arraybuffer) {
+	return $("<audio/>", {
+		controls: true,
+		autoplay: true,
+		src: URL.createObjectURL(new Blob([arraybuffer], { type: "audio/ogg" }))
+	});
+}
+
 (function() {
 	var recorder;
 	var record;
 	var isRecording = false;
+	var replay;
 
 	function startRecording(stream) {
 		//todo show sound level
@@ -22,7 +31,8 @@ function getSessionCookie(key) {
 	  recorder.audioChannels = 1;
 	  recorder.stream = stream;
 	  recorder.ondataavailable = function(blob) {
-	    //todo replay recorded track
+		  replay.src = URL.createObjectURL(blob);
+		  replay.style.display = "inline";
 			record = blob;
 	  };
 
@@ -30,7 +40,7 @@ function getSessionCookie(key) {
     isRecording = true;
 	}
 
-	window.initRecorder = function(startBtn, pauseBtn, stopBtn) {
+	window.initRecorder = function(startBtn, pauseBtn, stopBtn, replayTag) {
   	startBtn.click(function() {
   		navigator.mediaDevices.getUserMedia({ audio: true }).then(startRecording).catch(function(e) { alert(e) });
   	});
@@ -39,10 +49,10 @@ function getSessionCookie(key) {
   	    return;
   	  if (isRecording) {
   		  recorder.pause();
-  		  pauseBtn.text("resume");
+  		  pauseBtn.text("▶");
   		} else {
   		  recorder.resume();
-  		  pauseBtn.text("pause");
+  		  pauseBtn.text("▮▮");
   		}
       isRecording = ! isRecording;
   	});
@@ -53,6 +63,7 @@ function getSessionCookie(key) {
   		recorder.stop();
   		recorder.stream.stop();
   	});
+		replay = replayTag[0];
   };
 
 	window.postWithRecord = function(url, data) {
