@@ -40,7 +40,7 @@
 			<div class="btn-group-vertical btn-block" data-toggle="buttons" id="chatList"></div>
 		</div>
 		<div class="col-xs-9" style="padding: 20px">
-			<div class="well" id="chat"></div>
+			<div class="well" style="overflow-y: scroll" id="chat"></div>
 
 			<div class="row">
 				<div class="col-xs-2">
@@ -134,6 +134,8 @@
 	if (! getSessionCookie("sname"))
 		window.location = "login.html";
 	else {
+		$("#chat")[0].style.height =
+			document.body.clientHeight - $(".navbar").height() - $("#chat").parent().height() + "px";
 		refreshChats();
 		initRecorder($("#startBtn"), $("#pauseBtn"), $("#stopBtn"), $("#replay"));
 	}
@@ -160,7 +162,7 @@
 				history.forEach(function(msg) {
 					var chatEntry = $('<p><b>' + msg.author + '</b> (' + msg.date + '): ' + msg.text + '</p>');
 					chatEntry.appendTo(chat);
-					if (msg.audio)
+					if (msg.audio) {
 						var playBtn = $('<button type="button" class="btn btn-default btn-sm play-btn">play</button>');
 						playBtn.appendTo(chatEntry).click(function() {
 							$.ajax({
@@ -174,7 +176,9 @@
 								alert(response.responseText);
 							});
 						});
+					}
 				});
+				chat.animate({ scrollTop: chat[0].scrollHeight }, { duration: 1000, queue: false });
 			}).fail(function(response) {
 				alert(response.responseText);
 			});
