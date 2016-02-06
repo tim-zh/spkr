@@ -9,7 +9,6 @@
 	<script src="js/jquery-2.2.0.min.js"></script>
 	<script src="js/js.cookie-2.0.4.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
-	<script src="js/MediaStreamRecorder.min.js"></script>
 	<script src="js/main.js"></script>
 </head>
 <body>
@@ -134,10 +133,12 @@
 	if (! getSessionCookie("sname"))
 		window.location = "login.html";
 	else {
-		$("#chat")[0].style.height =
-			document.body.clientHeight - $(".navbar").height() - $("#chat").parent().height() + "px";
+		var chat = $("#chat");
+		chat[0].style.height =
+			document.body.clientHeight - $(".navbar").height() - chat.parent().height() + "px";
 		refreshChats();
-		initRecorder($("#startBtn"), $("#pauseBtn"), $("#stopBtn"), $("#replay"));
+		if (initRecorder)
+			initRecorder($("#startBtn"), $("#pauseBtn"), $("#stopBtn"), $("#replay"));
 	}
 
 	function refreshChats() {

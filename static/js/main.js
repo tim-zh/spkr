@@ -1,3 +1,7 @@
+navigator.getUserMedia = ( navigator.getUserMedia ||
+navigator.webkitGetUserMedia ||
+navigator.mozGetUserMedia);
+
 function getSessionCookie(key) {
 	var value = Cookies.get("ssession");
 	if (! value)
@@ -26,51 +30,53 @@ function createAudio(arraybuffer) {
 
 	function startRecording(stream) {
 		//todo show sound level
-	  recorder = new MediaStreamRecorder(stream);
+	  recorder = new MediaRecorder(stream);
 	  recorder.mimeType = 'audio/ogg';
-	  recorder.audioChannels = 1;
-	  recorder.stream = stream;
-	  recorder.ondataavailable = function(blob) {
-		  replay.src = URL.createObjectURL(blob);
+	  recorder.ondataavailable = function(e) {
+		  replay.src = URL.createObjectURL(e.data);
 		  replay.style.display = "inline";
-			record = blob;
+			record = e.data;
 	  };
 
-	  recorder.start(140 * 1000);
+	  recorder.start();
     isRecording = true;
 	}
 
-	window.initRecorder = function(startBtn, pauseBtn, stopBtn, replayTag) {
-  	startBtn.click(function() {
-  		navigator.mediaDevices.getUserMedia({ audio: true }).then(startRecording).catch(function(e) { alert(e) });
-  	});
-  	pauseBtn.click(function() {
-  	  if (! recorder)
-  	    return;
-  	  if (isRecording) {
-  		  recorder.pause();
-  		  pauseBtn.text("▶");
-  		} else {
-  		  recorder.resume();
-  		  pauseBtn.text("▮▮");
-  		}
-      isRecording = ! isRecording;
-  	});
-  	stopBtn.click(function() {
-  	  if (! recorder)
-  	    return;
-	    isRecording = false;
-  		recorder.stop();
-  		recorder.stream.stop();
-  	});
-		replay = replayTag[0];
-  };
+	if (navigator.getUserMedia) {
+		window.initRecorder = function(startBtn, pauseBtn, stopBtn, replayTag) {
+			startBtn.click(function() {
+				navigator.getUserMedia({ audio: true }, startRecording, function(e) { alert(e) });
+			});
+			pauseBtn.click(function() {
+				if (! recorder)
+					return;
+				if (isRecording) {
+					recorder.pause();
+					pauseBtn.text("▶");
+				} else {
+					recorder.resume();
+					pauseBtn.text("▮▮");
+				}
+				isRecording = ! isRecording;
+			});
+			stopBtn.click(function() {
+				if (! recorder)
+					return;
+				isRecording = false;
+				recorder.stop();
+				recorder.stream.stop();
+			});
+			replay = replayTag[0];
+		};
+	} else
+		alert("audio not supported");
 
 	window.postWithRecord = function(url, data) {
 		var fd = new FormData();
 		for (var key in data)
 			fd.append(key, data[key]);
-    fd.set("record", record);
+		if (record)
+      fd.set("record", record);
     return $.ajax({
       type: "POST",
       url: url,
