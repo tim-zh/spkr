@@ -46,13 +46,12 @@
 					<button class="btn btn-default" style="width: 100%" type="button" id="sendBtn">send</button>
 				</div>
 				<div class="col-xs-10">
-					<p>
-						<button class="btn btn-default" type="button" id="startBtn">●</button>
-						<button class="btn btn-default" type="button" id="pauseBtn">▮▮</button>
-						<button class="btn btn-default" type="button" id="stopBtn">◾</button>
-						<audio id="replay" style="vertical-align: middle" controls></audio>
-					</p>
-					<textarea class="form-control" maxlength="140" id="messageText"></textarea>
+					<button class="btn btn-default" type="button" id="startBtn">●</button>
+					<button class="btn btn-default" type="button" id="pauseBtn">▮▮</button>
+					<button class="btn btn-default" type="button" id="stopBtn">◾</button>
+					<span class="sound-level" id="soundLevel"></span>
+					<audio id="replay" style="vertical-align: middle" controls></audio>
+					<textarea class="form-control" style="margin-top: 10px" maxlength="140" id="messageText"></textarea>
 				</div>
 			</div>
 		</div>
@@ -138,7 +137,7 @@
 			document.body.clientHeight - $(".navbar").height() - chat.parent().height() + "px";
 		refreshChats();
 		if (initRecorder)
-			initRecorder($("#startBtn"), $("#pauseBtn"), $("#stopBtn"), $("#replay"));
+			initRecorder($("#startBtn"), $("#pauseBtn"), $("#stopBtn"), $("#replay"), $("#soundLevel"));
 	}
 
 	function refreshChats() {

@@ -33,6 +33,11 @@ audio {
 	border: none;
 }
 
+.sound-level {
+	margin: 0 10px;
+	background: #2a9fd6;
+}
+
 #logoutBtn {
 	padding-top: 15px;
 	float: right;
