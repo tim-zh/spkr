@@ -46,7 +46,7 @@ class Application extends Controller {
 		}
 	}
 
-	def listChats() = Secured { request =>
+	def chats() = Secured { request =>
 		Ok(JsArray(request.user.chats.flatMap(x => chatDao.get(x)).map { c =>
 			Json.obj("title" -> c.title, "id" -> c.id.toString)
 		}))
@@ -82,7 +82,7 @@ class Application extends Controller {
 		)
 	}
 
-	def getAudio(id: String) = Secured {
+	def audio(id: String) = Secured {
 		chatDao.getAudio(id) map { audio =>
 			val name = audio.id.toString
 			Result(

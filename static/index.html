@@ -87,7 +87,7 @@
 
 	$("#sendBtn").click(function() {
 		var text = $("#messageText");
-		postWithRecord("/api/chat", { chatId: activeChatId, msg: text.val() }).done(function() {
+		postWithRecord("/api/chat/history", { chatId: activeChatId, msg: text.val() }).done(function() {
 			text.val("");
 			refreshHistory();
 		}).fail(function(response) {
@@ -97,7 +97,7 @@
 
 	$("#searchForm").submit(function(event) {
 		event.preventDefault();
-		$.get("/api/user/search", $("#searchForm").serialize(), function(data) {
+		$.get("/api/user", $("#searchForm").serialize(), function(data) {
 			var modal = $("#searchModal");
 			var modalBody = $(".modal-body");
 			modal.on("hidden.bs.modal", function() {
@@ -116,7 +116,7 @@
 				});
 			});
 			$("#createChat").click(function() {
-				$.post("/api/chat/add", { title: $("#title").val(), "participants[]": participants }, function() {
+				$.post("/api/chat", { title: $("#title").val(), "participants[]": participants }, function() {
 					modal.modal("hide");
 					refreshChats();
 				}).fail(function(response) {
@@ -141,7 +141,7 @@
 	}
 
 	function refreshChats() {
-		$.get("/api/chat/list", function(data) {
+		$.get("/api/chat", function(data) {
 			var chatList = $("#chatList");
 			chatList.empty();
 			data.forEach(function(conv) {
@@ -166,7 +166,7 @@
 						var playBtn = $('<button type="button" class="btn btn-default btn-sm play-btn">play</button>');
 						playBtn.appendTo(chatEntry).click(function() {
 							$.ajax({
-								url: "api/chat/audio",
+								url: "api/audio",
 								data: { id: msg.audio },
 								xhrFields: { responseType: "arraybuffer" }
 							}).done(function(data) {

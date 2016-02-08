@@ -40,7 +40,7 @@
 <script>
 	$("#registerForm").submit(function(event) {
 		event.preventDefault();
-		$.post("/api/user/add", $("#registerForm").serialize(), function(data) {
+		$.post("/api/user", $("#registerForm").serialize(), function(data) {
 			window.location = "/";
 		}).fail(function(response) {
 			alert(response.responseText);

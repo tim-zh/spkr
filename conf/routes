@@ -1,9 +1,11 @@
 POST        /authenticate        controllers.Auth.authenticate()
-POST        /user/add            controllers.Auth.addUser()
+POST        /user                controllers.Auth.addUser()
+GET         /user                controllers.Application.searchUser(q: String ?= "")
 
-GET         /user/search         controllers.Application.searchUser(q: String ?= "")
-POST        /chat/add            controllers.Application.addChat()
-GET         /chat/list           controllers.Application.listChats()
+POST        /chat                controllers.Application.addChat()
+GET         /chat                controllers.Application.chats()
+
+POST        /chat/history        controllers.Application.writeToChat()
 GET         /chat/history        controllers.Application.chatHistory(id: String ?= "")
-POST        /chat                controllers.Application.writeToChat()
-GET         /chat/audio          controllers.Application.getAudio(id: String ?= "")
+
+GET         /audio               controllers.Application.audio(id: String ?= "")
