@@ -79,6 +79,7 @@
 
 <script>
 	var activeChatId;
+	var activeChatInterval;
 
 	$("#logoutBtn").click(function() {
 		Cookies.remove("ssession");
@@ -148,7 +149,8 @@
 				var btn = $('<label class="btn btn-default"><input type="radio">' + conv.title + '</label>');
 				btn.appendTo(chatList).click(function() {
 					activeChatId = conv.id;
-					refreshHistory();
+					clearInterval(activeChatInterval);
+					setInterval(refreshHistory, 1000);
 				});
 			});
 		});
