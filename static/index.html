@@ -145,12 +145,25 @@
 		$.get("/api/chat", function(data) {
 			var chatList = $("#chatList");
 			chatList.empty();
-			data.forEach(function(conv) {
-				var btn = $('<label class="btn btn-default"><input type="radio">' + conv.title + '</label>');
+			data.forEach(function(chat) {
+				var btn = $('<label class="btn btn-default"><input type="radio">' + chat.title + '</label>');
 				btn.appendTo(chatList).click(function() {
-					activeChatId = conv.id;
+					activeChatId = chat.id;
 					clearInterval(activeChatInterval);
-					setInterval(refreshHistory, 1000);
+					activeChatInterval = setInterval(refreshHistory, 1000);
+				});
+				var removeBtn = $('<button type="button" class="close">&times;</button>');
+				removeBtn.prependTo(btn);
+				removeBtn.click(function(e) {
+					e.stopPropagation();
+					$.ajax({
+						type: "DELETE",
+						url: "api/chat?" + $.param({ id: chat.id })
+					}).done(function() {
+						btn.remove();
+					}).fail(function(response) {
+						alert(response.responseText);
+					});
 				});
 			});
 		});

@@ -18,6 +18,8 @@ trait BaseDao[T] {
   def get(id: ObjectId): Option[T]
 
   def save(entity: T): lang.Iterable[Key[T]]
+
+  def delete(id: String): Int
 }
 
 trait UserDao extends BaseDao[User] {

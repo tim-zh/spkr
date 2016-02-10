@@ -48,9 +48,21 @@ class Application extends Controller {
 			else {
 				val users = userOpts.map(_._2.get).filter(request.user != _) :+ request.user
 				chatDao.add(title, users)
-				Ok("")
+				Ok
 			}
 		}
+	}
+
+	def deleteChat() = Secured { implicit request =>
+		Form(single("id" -> nonEmptyText)).bindFromRequest.fold(
+			bad =>
+				BadRequest(jsonErrors(bad.errors)),
+			id =>
+				if (chatDao.delete(id) == 1)
+					Ok
+				else
+					BadRequest(jsonErrors("chat" -> "not found"))
+		)
 	}
 
 	def chats() = Secured { request =>
@@ -82,7 +94,7 @@ class Application extends Controller {
 					} getOrElse ""
 					chatOpt.get.history :+= Message(form.message, audioId, request.user.id, new Date())
 					chatDao.save(chatOpt.get)
-					Ok("")
+					Ok
 				} else
 					BadRequest(jsonErrors("chat" -> "not found"))
 			}

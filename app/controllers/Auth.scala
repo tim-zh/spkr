@@ -18,7 +18,7 @@ class Auth extends Controller {
       form => {
         val user = userDao.get(form.name)
         if (user.isDefined && user.get.pass == form.pass)
-          Ok("").withSession("sname" -> user.get.name)
+          Ok.withSession("sname" -> user.get.name)
         else
           BadRequest(jsonErrors("user" -> "not found"))
       }
@@ -38,7 +38,7 @@ class Auth extends Controller {
           if (result.isLeft)
             BadRequest(jsonErrors(result.left.get))
           else
-            Ok("").withSession("sname" -> form.name)
+            Ok.withSession("sname" -> form.name)
         }
       }
     )
