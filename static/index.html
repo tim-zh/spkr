@@ -182,7 +182,7 @@
 				});
 				chat.animate({ scrollTop: chat[0].scrollHeight }, { duration: 1000, queue: false });
 			}).fail(function(response) {
-				alert(response.responseText);
+				console.log(response.responseText);
 			});
 	}
 </script>

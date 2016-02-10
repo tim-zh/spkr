@@ -29,8 +29,15 @@ class Application extends Controller {
 	}
 
 	def addChat() = Secured { request =>
-		val title = request.body.asFormUrlEncoded.flatMap(_.get("title")).getOrElse(Seq("")).head
-		val participants = request.body.asFormUrlEncoded.flatMap(_.get("participants[]")).getOrElse(Seq[String]())
+		val participants = request.body.asFormUrlEncoded.flatMap(_.get("participants[]")).getOrElse(Seq())
+		val titleMaxLength = 50
+		var title = request.body.asFormUrlEncoded.flatMap(_.get("title")).map(_.head).getOrElse("").take(titleMaxLength)
+		if (title.isEmpty) {
+			title = if (participants.size == 1)
+				participants.head
+			else
+				participants.mkString(", ")
+		}
 		if (participants.isEmpty)
 			BadRequest(jsonErrors("users" -> "empty"))
 		else {
