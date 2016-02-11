@@ -23,7 +23,7 @@ class BaseDaoImpl[T: ClassTag] extends BaseDao[T] {
     datastore.persist(entity)
 
   override def delete(id: String) =
-    datastore.delete(classTag[T].runtimeClass, new ObjectId(id)).getN
+    datastore.delete(classTag[T].runtimeClass, new ObjectId(id))
 }
 
 class UserDaoImpl extends BaseDaoImpl[User] with UserDao {

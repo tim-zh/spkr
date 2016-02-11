@@ -47,8 +47,12 @@ class Application extends Controller {
 				BadRequest(jsonErrors("user" -> ("not found - " + opt.get._1)))
 			else {
 				val users = userOpts.map(_._2.get).filter(request.user != _) :+ request.user
-				chatDao.add(title, users)
-				Ok
+				if (users.size == 1)
+					BadRequest(jsonErrors("users" -> "empty"))
+				else {
+					chatDao.add(title, users)
+					Ok
+				}
 			}
 		}
 	}
@@ -57,11 +61,19 @@ class Application extends Controller {
 		Form(single("id" -> nonEmptyText)).bindFromRequest.fold(
 			bad =>
 				BadRequest(jsonErrors(bad.errors)),
-			id =>
-				if (chatDao.delete(id) == 1)
+			id => {
+				val chatOpt = chatDao.get(id)
+				chatOpt.map { chat =>
+					request.user.chats -= chat.id
+					userDao.save(request.user)
+					chat.users -= request.user.id
+					if (chat.users.isEmpty)
+						chatDao.delete(id)
+					else
+						chatDao.save(chat)
 					Ok
-				else
-					BadRequest(jsonErrors("chat" -> "not found"))
+				} getOrElse BadRequest(jsonErrors("chat" -> "not found"))
+			}
 		)
 	}
 

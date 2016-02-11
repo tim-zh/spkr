@@ -2,6 +2,7 @@ package models
 
 import java.lang
 
+import com.mongodb.WriteResult
 import models.entities._
 import org.bson.types.ObjectId
 import org.mongodb.morphia.Key
@@ -19,7 +20,7 @@ trait BaseDao[T] {
 
   def save(entity: T): lang.Iterable[Key[T]]
 
-  def delete(id: String): Int
+  def delete(id: String): WriteResult
 }
 
 trait UserDao extends BaseDao[User] {
