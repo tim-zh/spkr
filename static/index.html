@@ -65,7 +65,15 @@
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 				add to contacts
 			</div>
-			<div class="modal-body">
+			<form class="modal-header input-group" id="searchForm2">
+	      <span class="input-group-btn">
+	        <button type="submit" class="btn btn-default btn-sm">search</button>
+	      </span>
+				<input type="text" placeholder="user search" class="form-control input-sm" name="q">
+			</form>
+			<div class="modal-body" id="searchResults">
+			</div>
+			<div class="modal-footer" id="selectedResults">
 			</div>
 			<div class="modal-footer input-group">
 	      <span class="input-group-btn">
@@ -100,22 +108,15 @@
 		event.preventDefault();
 		$.get("/api/user", $("#searchForm").serialize(), function(data) {
 			var modal = $("#searchModal");
-			var modalBody = $(".modal-body");
+			var searchResultsTag = $("#searchResults");
+			var selectedResultsTag = $("#selectedResults");
 			modal.on("hidden.bs.modal", function() {
-				modalBody.empty();
+				searchResultsTag.empty();
+				selectedResultsTag.empty();
 				$("#title").val("");
 			});
 			var participants = [];
-			data.forEach(function(user) {
-				var btn = $('<button type="submit" class="btn btn-default btn-sm" style="margin: 10px">' + user + '</button>');
-				btn.appendTo(modalBody).click(function() {
-					btn.button("toggle");
-					if (participants.indexOf(user) != -1)
-						participants.splice(participants.indexOf(user), 1);
-					else
-						participants.push(user);
-				});
-			});
+			appendSearchResults(data, participants, searchResultsTag, selectedResultsTag);
 			$("#createChat").click(function() {
 				$.post("/api/chat", { title: $("#title").val(), "participants[]": participants }, function() {
 					modal.modal("hide");
@@ -124,11 +125,39 @@
 					alert(response.responseText);
 				});
 			});
+			$("#searchForm")[0].reset();
 			modal.modal("show");
 		}).fail(function(response) {
 			alert(response.responseText);
 		});
 	});
+	$("#searchForm2").submit(function(event) {
+		event.preventDefault();
+		$.get("/api/user", $("#searchForm2").serialize(), function(data) {
+			var searchResultsTag = $("#searchResults");
+			var selectedResultsTag = $("#selectedResults");
+			searchResultsTag.empty();
+			var participants = [];
+			appendSearchResults(data, participants, searchResultsTag, selectedResultsTag);
+			$("#searchForm2")[0].reset();
+		}).fail(function(response) {
+			alert(response.responseText);
+		});
+	});
+	function appendSearchResults(response, participants, searchResultsTag, selectedResultsTag) {
+		response.forEach(function(user) {
+			var btn = $('<button type="submit" class="btn btn-default btn-sm" style="margin: 10px">' + user + '</button>');
+			btn.appendTo(searchResultsTag).click(function() {
+				if (participants.indexOf(user) != -1) {
+					participants.splice(participants.indexOf(user), 1);
+					btn.detach().appendTo(searchResultsTag);
+				} else {
+					participants.push(user);
+					btn.detach().appendTo(selectedResultsTag);
+				}
+			});
+		});
+	}
 
 	if (! getSessionCookie("sname"))
 		window.location = "login.html";

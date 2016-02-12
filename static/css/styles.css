@@ -38,6 +38,10 @@ audio {
 	background: #2a9fd6;
 }
 
+.modal-footer {
+	text-align: left;
+}
+
 #logoutBtn {
 	padding-top: 15px;
 	float: right;
