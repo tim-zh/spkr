@@ -96,7 +96,7 @@
 
 	$("#sendBtn").click(function() {
 		var text = $("#messageText");
-		postWithRecord("/api/chat/history", { chatId: activeChatId, msg: text.val() }).done(function() {
+		postWithRecord("/api/v1/chat/history", { chatId: activeChatId, msg: text.val() }).done(function() {
 			text.val("");
 			refreshHistory();
 		}).fail(function(response) {
@@ -106,7 +106,7 @@
 
 	$("#searchForm").submit(function(event) {
 		event.preventDefault();
-		$.get("/api/user", $("#searchForm").serialize(), function(data) {
+		$.get("/api/v1/user", $("#searchForm").serialize(), function(data) {
 			var modal = $("#searchModal");
 			var searchResultsTag = $("#searchResults");
 			var selectedResultsTag = $("#selectedResults");
@@ -118,7 +118,7 @@
 			var participants = [];
 			appendSearchResults(data, participants, searchResultsTag, selectedResultsTag);
 			$("#createChat").click(function() {
-				$.post("/api/chat", { title: $("#title").val(), "participants[]": participants }, function() {
+				$.post("/api/v1/chat", { title: $("#title").val(), "participants[]": participants }, function() {
 					modal.modal("hide");
 					refreshChats();
 				}).fail(function(response) {
@@ -133,7 +133,7 @@
 	});
 	$("#searchForm2").submit(function(event) {
 		event.preventDefault();
-		$.get("/api/user", $("#searchForm2").serialize(), function(data) {
+		$.get("/api/v1/user", $("#searchForm2").serialize(), function(data) {
 			var searchResultsTag = $("#searchResults");
 			var selectedResultsTag = $("#selectedResults");
 			searchResultsTag.empty();
@@ -166,18 +166,20 @@
 		chat[0].style.height =
 			document.body.clientHeight - $(".navbar").height() - chat.parent().height() + "px";
 		refreshChats();
+		connect();
 		if (initRecorder)
 			initRecorder($("#startBtn"), $("#pauseBtn"), $("#stopBtn"), $("#replay"), $("#soundLevel"));
 	}
 
 	function refreshChats() {
-		$.get("/api/chat", function(data) {
+		$.get("/api/v1/chat", function(data) {
 			var chatList = $("#chatList");
 			chatList.empty();
 			data.forEach(function(chat) {
 				var btn = $('<label class="btn btn-default"><input type="radio">' + chat.title + '</label>');
 				btn.appendTo(chatList).click(function() {
 					activeChatId = chat.id;
+					refreshHistory();
 					clearInterval(activeChatInterval);
 					activeChatInterval = setInterval(refreshHistory, 1000);
 				});
@@ -187,7 +189,7 @@
 					e.stopPropagation();
 					$.ajax({
 						type: "DELETE",
-						url: "api/chat?" + $.param({ id: chat.id })
+						url: "api/v1/chat?" + $.param({ id: chat.id })
 					}).done(function() {
 						btn.remove();
 					}).fail(function(response) {
@@ -196,36 +198,6 @@
 				});
 			});
 		});
-	}
-
-	function refreshHistory() {
-		if (activeChatId)
-			$.get("/api/chat/history", { id: activeChatId }, function(history) {
-				var chat = $("#chat");
-				chat.empty();
-				history.forEach(function(msg) {
-					var chatEntry = $('<p><b>' + msg.author + '</b> (' + msg.date + '): ' + msg.text + '</p>');
-					chatEntry.appendTo(chat);
-					if (msg.audio) {
-						var playBtn = $('<button type="button" class="btn btn-default btn-sm play-btn">play</button>');
-						playBtn.appendTo(chatEntry).click(function() {
-							$.ajax({
-								url: "api/audio",
-								data: { id: msg.audio },
-								xhrFields: { responseType: "arraybuffer" }
-							}).done(function(data) {
-								playBtn.hide();
-								createAudio(data).appendTo(chatEntry);
-							}).fail(function(response) {
-								alert(response.responseText);
-							});
-						});
-					}
-				});
-				chat.animate({ scrollTop: chat[0].scrollHeight }, { duration: 1000, queue: false });
-			}).fail(function(response) {
-				console.log(response.responseText);
-			});
 	}
 </script>
 </body>

@@ -12,9 +12,11 @@ import play.api.data._
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.json._
 import play.api.mvc._
+import play.api.Play.current
 
 import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class Application extends Controller {
 	@Inject
@@ -89,6 +91,15 @@ class Application extends Controller {
 			BadRequest(jsonErrors("chat" -> "not found"))
 		else
 			Ok(JsArray(chatOpt.get.orderedHistory.map(_.json)))
+	}
+
+	def chatHistorySocket() = WebSocket.tryAcceptWithActor[JsValue, JsValue] { request =>
+		Future.successful {
+			if (getUserFromRequest(request).isDefined)
+				Right(out => ChatA.get(out, dao))
+			else
+				Left(BadRequest(jsonErrors("user" -> "not found")))
+		}
 	}
 
 	def writeToChat() = Secured(parse.multipartFormData) { implicit request =>

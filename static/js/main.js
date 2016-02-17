@@ -118,3 +118,55 @@ function createAudio(arraybuffer) {
     });
 	};
 })();
+
+
+function newSocket(messageCallback, closeCallback) {
+	var socket = new WebSocket("ws://" + window.location.host + "/api/v2/chat/history");
+	socket.ready = false;
+	socket.onopen = function() {
+		socket.ready = true;
+	};
+	socket.onclose = function(e) {
+		socket.ready = false;
+		console.log("socket closed: " + e.code + " " + e.reason);
+		setTimeout(closeCallback, 1000);
+	};
+	socket.onmessage = messageCallback;
+	return socket;
+}
+
+var chatSocket;
+
+function connect() {
+	chatSocket = newSocket(onChatMessage, connect);
+}
+function onChatMessage(message) {
+	var history = JSON.parse(message.data);
+	var chat = $("#chat");
+	chat.empty();
+	history.forEach(function(msg) {
+		var chatEntry = $('<p><b>' + msg.author + '</b> (' + msg.date + '): ' + msg.text + '</p>');
+		chatEntry.appendTo(chat);
+		if (msg.audio) {
+			var playBtn = $('<button type="button" class="btn btn-default btn-sm play-btn">play</button>');
+			playBtn.appendTo(chatEntry).click(function() {
+				$.ajax({
+					url: "api/v1/audio",
+					data: { id: msg.audio },
+					xhrFields: { responseType: "arraybuffer" }
+				}).done(function(data) {
+					playBtn.hide();
+					createAudio(data).appendTo(chatEntry);
+				}).fail(function(response) {
+					alert(response.responseText);
+				});
+			});
+		}
+	});
+	chat.animate({ scrollTop: chat[0].scrollHeight }, { duration: 1000, queue: false });
+}
+function refreshHistory() {
+	if (! chatSocket.ready)
+		return;
+	chatSocket.send(JSON.stringify({ chatId: activeChatId }));
+}

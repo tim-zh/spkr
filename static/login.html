@@ -38,7 +38,7 @@
 <script>
 	$("#loginForm").submit(function(event) {
 		event.preventDefault();
-		$.post("/api/authenticate", $("#loginForm").serialize(), function() {
+		$.post("/api/v1/authenticate", $("#loginForm").serialize(), function() {
 			window.location = "/";
 		}).fail(function(response) {
 			alert(response.responseText);
