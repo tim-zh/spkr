@@ -1,7 +1,7 @@
 package models
 
 
-import com.mongodb.DuplicateKeyException
+import com.mongodb.{WriteResult, DuplicateKeyException}
 import models.entities._
 import org.bson.types.ObjectId
 import scala.collection.JavaConversions._
@@ -22,8 +22,20 @@ class BaseDaoImpl[T: ClassTag] extends BaseDao[T] {
   override def save(entity: T) =
     datastore.persist(entity)
 
-  override def delete(id: String) =
-    datastore.delete(classTag[T].runtimeClass, new ObjectId(id))
+  override def delete(id: String) = {
+    val objectId = getId(id)
+    if (objectId.isDefined)
+      datastore.delete(classTag[T].runtimeClass, objectId.get)
+    else
+      new WriteResult(0, false, false)
+  }
+
+  protected def getId(id: String) =
+    try
+      Some(new ObjectId(id))
+    catch {
+      case e: IllegalArgumentException => None
+    }
 }
 
 class UserDaoImpl extends BaseDaoImpl[User] with UserDao {
@@ -53,12 +65,15 @@ class ChatDaoImpl extends BaseDaoImpl[Chat] with ChatDao {
     result
   }
 
+  private def internalGet[T](id: String, clazz: Class[T]) =
+    getId(id).flatMap(objectId => Option(datastore.get(clazz, objectId)))
+
   override def get(id: String): Option[Chat] =
-    Option(datastore.get(classOf[Chat], new ObjectId(id)))
+    internalGet(id, classOf[Chat])
 
   override def saveAudio(entity: Audio) =
     datastore.persist(entity)
 
   override def getAudio(id: String) =
-    Option(datastore.get(classOf[Audio], new ObjectId(id)))
+    internalGet(id, classOf[Audio])
 }

@@ -11,7 +11,8 @@ import org.mongodb.morphia.annotations._
 import play.api.libs.json.{JsObject, JsString, Json}
 
 @Embedded
-case class Message(var text: String,
+case class Message(var id: Long,
+                   var text: String,
                    var audioId: String,
                    var author: ObjectId,
                    var date: Date) {
@@ -24,9 +25,10 @@ case class Message(var text: String,
   @Named("default")
   var dateFormat: SimpleDateFormat = _
 
-  def this() = this("", null, null, null)
+  def this() = this(-1, "", null, null, null)
 
   def json: JsObject = Json.obj(
+    "id" -> id,
     "author" -> String.valueOf(dao.user.get(author).map(_.name).getOrElse("")),
     "date" -> dateFormat.format(date),
     "text" -> JsString(text),

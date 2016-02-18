@@ -115,7 +115,13 @@ class Application extends Controller {
 						chatDao.saveAudio(audio)
 						audio.id.toString
 					} getOrElse ""
-					chatOpt.get.history :+= Message(form.message, audioId, request.user.id, new Date())
+					val history = chatOpt.get.orderedHistory
+					val newId =
+						if (history.nonEmpty)
+							history.get(history.size - 1).id + 1
+						else
+							0
+					chatOpt.get.history :+= Message(newId, form.message, audioId, request.user.id, new Date())
 					chatDao.save(chatOpt.get)
 					Ok
 				} else

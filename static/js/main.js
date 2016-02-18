@@ -32,17 +32,17 @@ function createAudio(arraybuffer) {
 
 	function startRecording(stream) {
 		stopRecording();
-	  recorder = new MediaRecorder(stream);
-	  recorder.mimeType = 'audio/ogg';
-	  recorder.ondataavailable = function(e) {
-		  replayAudioTag.src = URL.createObjectURL(e.data);
-		  replayAudioTag.style.display = "inline";
+		recorder = new MediaRecorder(stream);
+		recorder.mimeType = 'audio/ogg';
+		recorder.ondataavailable = function(e) {
+			replayAudioTag.src = URL.createObjectURL(e.data);
+			replayAudioTag.style.display = "inline";
 			recordData = e.data;
-	  };
+		};
 		replayAudioTag.style.display = "none";
 
-	  recorder.start();
-    isRecording = true;
+		recorder.start();
+		isRecording = true;
 
 		soundLevelIntervalId = visualize(soundLevelSpanTag, stream);
 	}
@@ -108,65 +108,74 @@ function createAudio(arraybuffer) {
 		for (var key in data)
 			fd.append(key, data[key]);
 		if (recordData)
-      fd.set("record", recordData);
-    return $.ajax({
-      type: "POST",
-      url: url,
-      data: fd,
-      processData: false,
-      contentType: false
-    });
+			fd.set("record", recordData);
+		recordData = undefined;
+		replayAudioTag.style.display = "none";
+		return $.ajax({
+			type: "POST",
+			url: url,
+			data: fd,
+			processData: false,
+			contentType: false
+		});
 	};
 })();
 
-
-function newSocket(messageCallback, closeCallback) {
-	var socket = new WebSocket("ws://" + window.location.host + "/api/v2/chat/history");
-	socket.ready = false;
-	socket.onopen = function() {
-		socket.ready = true;
-	};
-	socket.onclose = function(e) {
+(function() {
+	function newSocket(messageCallback, closeCallback) {
+		var socket = new WebSocket("ws://" + window.location.host + "/api/v2/chat/history");
 		socket.ready = false;
-		console.log("socket closed: " + e.code + " " + e.reason);
-		setTimeout(closeCallback, 1000);
-	};
-	socket.onmessage = messageCallback;
-	return socket;
-}
-
-var chatSocket;
-
-function connect() {
-	chatSocket = newSocket(onChatMessage, connect);
-}
-function onChatMessage(message) {
-	var history = JSON.parse(message.data);
-	var chat = $("#chat");
-	chat.empty();
-	history.forEach(function(msg) {
-		var chatEntry = $('<p><b>' + msg.author + '</b> (' + msg.date + '): ' + msg.text + '</p>');
-		chatEntry.appendTo(chat);
-		if (msg.audio) {
-			var playBtn = $('<button type="button" class="btn btn-default btn-sm play-btn">play</button>');
-			playBtn.appendTo(chatEntry).click(function() {
-				$.ajax({
-					url: "api/v1/audio",
-					data: { id: msg.audio },
-					xhrFields: { responseType: "arraybuffer" }
-				}).done(function(data) {
-					playBtn.hide();
-					createAudio(data).appendTo(chatEntry);
-				}).fail(function(response) {
-					alert(response.responseText);
+		socket.onopen = function() {
+			socket.ready = true;
+		};
+		socket.onclose = function(e) {
+			socket.ready = false;
+			console.log("socket closed: " + e.code + " " + e.reason);
+			setTimeout(closeCallback, 1000);
+		};
+		socket.onmessage = messageCallback;
+		return socket;
+	}
+	function onChatMessage(message) {
+		var history = JSON.parse(message.data);
+		if (! history.length)
+			return;
+		var chat = $("#chat");
+		var scrollDown = chat[0].scrollHeight - chat[0].clientHeight == chat[0].scrollTop;
+		history.forEach(function(msg) {
+			var chatEntry = $('<p><b>' + msg.author + '</b> (' + msg.date + '): ' + msg.text + '</p>');
+			chatEntry.appendTo(chat);
+			if (msg.audio) {
+				var playBtn = $('<button type="button" class="btn btn-default btn-sm play-btn">play</button>');
+				playBtn.appendTo(chatEntry).click(function() {
+					$.ajax({
+						url: "api/v1/audio",
+						data: { id: msg.audio },
+						xhrFields: { responseType: "arraybuffer" }
+					}).done(function(data) {
+						playBtn.hide();
+						createAudio(data).appendTo(chatEntry);
+					}).fail(function(response) {
+						alert(response.responseText);
+					});
 				});
-			});
-		}
-	});
-	chat.animate({ scrollTop: chat[0].scrollHeight }, { duration: 1000, queue: false });
-}
-function refreshHistory() {
-	if (! chatSocket.ready)
-		return;
-	chatSocket.send(JSON.stringify({ chatId: activeChatId }));
-}
+			}
+		});
+		lastMsgId = history[history.length - 1].id;
+		if (scrollDown)
+			chat.animate({ scrollTop: chat[0].scrollHeight }, { duration: 1000, queue: false });
+	}
+
+	var chatSocket;
+
+	window.lastMsgId = -1;
+
+	window.connectToChat = function() {
+		chatSocket = newSocket(onChatMessage, connectToChat);
+	};
+	window.refreshHistory = function() {
+		if (! chatSocket.ready)
+			return;
+		chatSocket.send(JSON.stringify({ chatId: activeChatId, lastMsgId: lastMsgId }));
+	};
+})();
