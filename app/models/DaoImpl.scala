@@ -14,7 +14,7 @@ class DaoImpl extends Dao {
 }
 
 class BaseDaoImpl[T: ClassTag] extends BaseDao[T] {
-  override val datastore: DSImpl = DS.datastore
+  lazy val datastore: DSImpl = DS.datastore
 
   override def get(id: ObjectId): Option[T] =
     Option(datastore.get(classTag[T].runtimeClass, id).asInstanceOf[T])

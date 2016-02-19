@@ -14,8 +14,6 @@ trait Dao {
 }
 
 trait BaseDao[T] {
-  val datastore: DSImpl
-
   def get(id: ObjectId): Option[T]
 
   def save(entity: T): lang.Iterable[Key[T]]

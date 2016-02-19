@@ -10,8 +10,10 @@ libraryDependencies ++= Seq(
 	cache,
 	ws,
 	"org.mongodb.morphia" % "morphia" % "1.1.0",
-	"org.scalatest" %% "scalatest" % "2.2.4" % Test
-	)
+	"org.scalatest" %% "scalatest" % "2.2.4" % Test,
+	"org.scalatestplus" %% "play" % "1.4.0" % Test,
+	"com.github.fakemongo" % "fongo" % "2.0.3" % Test //newer versions refer to mongodb 3.2
+)
 
 routesGenerator := InjectedRoutesGenerator
 

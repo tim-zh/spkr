@@ -8,7 +8,7 @@ import com.google.inject.name.Named
 import models.Dao
 import org.bson.types.ObjectId
 import org.mongodb.morphia.annotations._
-import play.api.libs.json.{JsObject, JsString, Json}
+import play.api.libs.json.{JsObject, Json}
 
 @Embedded
 case class Message(var id: Long,
@@ -31,7 +31,7 @@ case class Message(var id: Long,
     "id" -> id,
     "author" -> String.valueOf(dao.user.get(author).map(_.name).getOrElse("")),
     "date" -> dateFormat.format(date),
-    "text" -> JsString(text),
+    "text" -> text,
     "audio" -> audioId
   )
 }

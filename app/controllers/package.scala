@@ -12,7 +12,7 @@ package object controllers {
 
   def jsonErrors[T <: FormError](messages: Seq[T])(implicit tag: ClassTag[T]) = Json.arr(messages.map { err => Json.obj(err.key -> err.message) })
 
-  def getUserFromRequest(req: RequestHeader) = req.session.get("sname").flatMap(Play.current.injector.instanceOf(classOf[models.Dao]).user.get)
+  def getUserFromRequest(req: RequestHeader) = req.session.get("sname").flatMap(Play.current.injector.instanceOf[models.Dao].user.get)
 
   case class Login(name: String, pass: String)
 
