@@ -2,6 +2,7 @@ package models.entities
 
 import java.util.Date
 
+import models.Dao
 import org.bson.types.ObjectId
 import play.api.libs.json.Json
 import util.BasicSpec
@@ -17,7 +18,9 @@ class ModelsSpec extends BasicSpec {
     msg.audioId = "aId"
     msg.author = authorId
     msg.date = date
-    collection("users").insert(dbObject("_id" -> authorId, "name" -> "N"))
+    val user = User("N", "", null)
+    user.id = authorId
+    app.injector.instanceOf[Dao].user.save(user)
 
     val result = msg.json
 
