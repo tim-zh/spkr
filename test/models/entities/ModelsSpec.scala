@@ -24,7 +24,7 @@ class ModelsSpec extends BasicSpec {
 
     val result = msg.json
 
-    result shouldEqual Json.parse(
+    result shouldBe Json.parse(
       s"""{
         |  "id": ${msg.id},
         |  "author": "N",

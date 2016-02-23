@@ -2,9 +2,10 @@ package models
 
 import java.text.SimpleDateFormat
 
-import com.google.inject.{Singleton, Provides, AbstractModule}
+import com.google.inject.{Injector, Singleton, Provides, AbstractModule}
 import com.google.inject.name.Names
 import com.mongodb.MongoClient
+import org.mongodb.morphia.Morphia
 
 class ModelsModule extends AbstractModule {
   val defaultDateFormat = new SimpleDateFormat("dd MMM yyyy HH:mm:ss")
@@ -17,5 +18,17 @@ class ModelsModule extends AbstractModule {
 
   @Provides
   @Singleton
-  def createMongoClient() = new MongoClient("localhost", 27017)
+  def createMongoClient(): MongoClient = new MongoClient("localhost", 27017)
+
+  @Provides
+  @Singleton
+  def createDSImpl(injector: Injector): DSImpl = {
+    val morphia = new Morphia
+    morphia.getMapper.getOptions.setObjectFactory(new MorphiaCreatorWithInjections)
+    morphia.mapPackage("app.models.entities")
+    val mongoClient = injector.getInstance(classOf[MongoClient])
+    val result = new DSImpl(morphia, mongoClient, "test")
+    result.ensureIndexes()
+    result
+  }
 }

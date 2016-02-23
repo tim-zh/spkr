@@ -29,8 +29,8 @@ class DaoCrudSpec extends BasicSpec {
 		val userResult = userDao.get("n").get
 
 		result.title shouldBe "title1"
-		result.users shouldEqual java.util.Arrays.asList(user.id)
-		userResult.chats shouldEqual java.util.Arrays.asList(result.id)
+		result.users shouldBe java.util.Arrays.asList(user.id)
+		userResult.chats shouldBe java.util.Arrays.asList(result.id)
 
 		dao.delete(result.id.toString)
 

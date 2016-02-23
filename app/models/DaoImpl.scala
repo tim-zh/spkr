@@ -1,6 +1,7 @@
 package models
 
 
+import com.google.inject.Inject
 import com.mongodb.{WriteResult, DuplicateKeyException}
 import models.entities._
 import org.bson.types.ObjectId
@@ -9,12 +10,14 @@ import scala.collection.JavaConversions._
 import scala.reflect._
 
 class DaoImpl extends Dao {
-  override val user: UserDao = new UserDaoImpl
-  override val chat: ChatDao = new ChatDaoImpl
+  @Inject
+  var datastore: DSImpl = _
+
+  override val user: UserDao = new UserDaoImpl(this)
+  override val chat: ChatDao = new ChatDaoImpl(this)
 }
 
-class BaseDaoImpl[T: ClassTag] extends BaseDao[T] {
-  lazy val datastore: DSImpl = DS.datastore
+abstract class BaseDaoImpl[T: ClassTag] extends BaseDao[T] {
 
   override def get(id: ObjectId): Option[T] =
     Option(datastore.get(classTag[T].runtimeClass, id).asInstanceOf[T])
@@ -38,7 +41,9 @@ class BaseDaoImpl[T: ClassTag] extends BaseDao[T] {
     }
 }
 
-class UserDaoImpl extends BaseDaoImpl[User] with UserDao {
+class UserDaoImpl(daoImpl: DaoImpl) extends BaseDaoImpl[User] with UserDao {
+  override def datastore: DSImpl = daoImpl.datastore
+
   override def get(name: String): Option[User] =
     Option(datastore.find(classOf[User], "name", name).get())
 
@@ -54,7 +59,9 @@ class UserDaoImpl extends BaseDaoImpl[User] with UserDao {
     }
 }
 
-class ChatDaoImpl extends BaseDaoImpl[Chat] with ChatDao {
+class ChatDaoImpl(daoImpl: DaoImpl) extends BaseDaoImpl[Chat] with ChatDao {
+  override def datastore: DSImpl = daoImpl.datastore
+
   override def add(title: String, users: Seq[User]) = {
     val chat = Chat(title, Seq(), users.map(_.id))
     val result = datastore.persist(chat)
