@@ -33,13 +33,12 @@ class Application extends Controller {
 	def addChat() = Secured { request =>
 		val participants = request.body.asFormUrlEncoded.flatMap(_.get("participants[]")).getOrElse(Seq())
 		val titleMaxLength = 50
-		var title = request.body.asFormUrlEncoded.flatMap(_.get("title")).map(_.head).getOrElse("").take(titleMaxLength)
-		if (title.isEmpty) {
+		var title = request.body.asFormUrlEncoded.flatMap(_.get("title")).map(_.head).getOrElse("")
+		if (title.isEmpty)
 			title = if (participants.size == 1)
 				participants.head
 			else
 				participants.mkString(", ")
-		}
 		if (participants.isEmpty)
 			BadRequest(jsonErrors("users" -> "empty"))
 		else {
@@ -52,7 +51,7 @@ class Application extends Controller {
 				if (users.size == 1)
 					BadRequest(jsonErrors("users" -> "empty"))
 				else {
-					chatDao.add(title, users)
+					chatDao.add(title.take(titleMaxLength), users)
 					Ok
 				}
 			}
