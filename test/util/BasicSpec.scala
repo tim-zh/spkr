@@ -13,16 +13,15 @@ import play.api.test.FakeApplication
 import scala.collection.JavaConversions._
 
 abstract class BasicSpec extends FlatSpec with Matchers with WsScalaTestClient with OneAppPerTest with BeforeAndAfter {
-  var injector: Injector = _
-
   override def newAppForTest(testData: TestData): Application = {
     val fongo = new Fongo("test")
-    injector = new GuiceInjectorBuilder().
+    val newInjector = new GuiceInjectorBuilder().
         bindings(new ModelsModule).
         overrides(bind[MongoClient].toInstance(fongo.getMongo)).
         injector
     new FakeApplication() {
-      override def injector: Injector = InjectorMerger(BasicSpec.this.injector, super.injector)
+      private val inj = InjectorMerger(newInjector, super.injector)
+      override def injector: Injector = inj
     }
   }
 

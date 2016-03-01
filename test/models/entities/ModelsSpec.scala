@@ -12,7 +12,7 @@ class ModelsSpec extends BasicSpec {
     val authorId = new ObjectId
     val date = new Date(12345678)
     val dateStr = new models.ModelsModule().defaultDateFormat.format(date)
-    val msg = injector.instanceOf[Message]
+    val msg = app.injector.instanceOf[Message]
     msg.id = 123
     msg.text = "text1"
     msg.audioId = "aId"

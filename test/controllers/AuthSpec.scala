@@ -7,7 +7,7 @@ import util.BasicSpec
 
 class AuthSpec extends BasicSpec {
   "Auth" should "authenticate a valid user" in {
-    val controller = injector.instanceOf[Auth]
+    val controller = app.injector.instanceOf[Auth]
     val request = userRequest("/v1/authenticate", "nn", "pp")
 
     controller.dao.user.add("nn", "pp")
@@ -18,7 +18,7 @@ class AuthSpec extends BasicSpec {
   }
 
   it should "not authenticate an invalid user" in {
-    val controller = injector.instanceOf[Auth]
+    val controller = app.injector.instanceOf[Auth]
     val request = userRequest("/v1/authenticate", "nn2", "pp2")
 
     controller.dao.user.add("nn", "pp")
@@ -30,7 +30,7 @@ class AuthSpec extends BasicSpec {
   }
 
   it should "register a valid user" in {
-    val controller = injector.instanceOf[Auth]
+    val controller = app.injector.instanceOf[Auth]
     val request = userRequest("/v1/user", "nn", "pp", "pp")
 
     val result = call(controller.addUser(), request)
@@ -40,7 +40,7 @@ class AuthSpec extends BasicSpec {
   }
 
   it should "not register an invalid user" in {
-    val controller = injector.instanceOf[Auth]
+    val controller = app.injector.instanceOf[Auth]
     val request = userRequest("/v1/user", "n", "pp", "12")
 
     val result = call(controller.addUser(), request)
