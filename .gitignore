@@ -6,5 +6,8 @@ target
 nginx/*.log
 nginx/nginx.conf
 nginx/nginx.pid
+db
 start
 stop
+start.bat
+stop.bat
