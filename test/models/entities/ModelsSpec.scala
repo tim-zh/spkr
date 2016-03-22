@@ -22,7 +22,7 @@ class ModelsSpec extends BasicSpec {
     user.id = authorId
     app.injector.instanceOf[Dao].user.save(user)
 
-    val result = msg.json
+    val result = msg.json(app.injector.instanceOf[Dao].user.getName(authorId))
 
     result shouldBe Json.parse(
       s"""{

@@ -6,7 +6,9 @@ import java.util.Date
 
 import com.google.inject.Inject
 import models.entities.{Audio, Message}
-import models.{ChatDao, Dao, UserDao}
+import models._
+import org.apache.kafka.clients.producer.ProducerRecord
+import play.api.Play
 import play.api.data.Forms._
 import play.api.data._
 import play.api.libs.iteratee.Enumerator
@@ -23,6 +25,8 @@ class Application extends Controller {
 	var dao: Dao = _
 	lazy val userDao: UserDao = dao.user
 	lazy val chatDao: ChatDao = dao.chat
+	@Inject
+	var producer: PP = _
 
 	def searchUser(query: String) = Action {
 		val users = userDao.list(query)
@@ -89,7 +93,7 @@ class Application extends Controller {
 		if (chatOpt.isEmpty)
 			BadRequest(jsonErrors("chat" -> "not found"))
 		else
-			Ok(JsArray(chatOpt.get.orderedHistory.map(_.json)))
+			Ok(JsArray(chatOpt.get.orderedHistory.map(m => m.json(userDao.getName(m.author)))))
 	}
 
 	def chatHistorySocket() = WebSocket.tryAcceptWithActor[JsValue, JsValue] { request =>
@@ -120,8 +124,15 @@ class Application extends Controller {
 							history.get(history.size - 1).id + 1
 						else
 							0
-					chatOpt.get.history :+= Message(newId, form.message, audioId, request.user.id, new Date())
+					val message = Play.current.injector.instanceOf[Message]
+					message.id = newId
+					message.text = form.message
+					message.audioId = audioId
+					message.author = request.user.id
+					message.date = new Date()
+					chatOpt.get.history :+= message
 					chatDao.save(chatOpt.get)
+					producer.send(new ProducerRecord[String, String](form.chatId, message.json(request.user.name).toString))
 					Ok
 				} else
 					BadRequest(jsonErrors("chat" -> "not found"))

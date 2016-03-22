@@ -161,14 +161,11 @@ function createAudio(arraybuffer) {
 				});
 			}
 		});
-		lastMsgId = history[history.length - 1].id;
 		if (scrollDown)
 			chat.animate({ scrollTop: chat[0].scrollHeight }, { duration: 1000, queue: false });
 	}
 
 	var chatSocket;
-
-	window.lastMsgId = -1;
 
 	window.connectToChat = function() {
 		chatSocket = newSocket(onChatMessage, connectToChat);
@@ -176,6 +173,6 @@ function createAudio(arraybuffer) {
 	window.refreshHistory = function() {
 		if (! chatSocket.ready)
 			return;
-		chatSocket.send(JSON.stringify({ chatId: activeChatId, lastMsgId: lastMsgId }));
+		chatSocket.send(JSON.stringify({ chatId: activeChatId }));
 	};
 })();

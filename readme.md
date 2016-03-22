@@ -1,5 +1,5 @@
 - install mongodb (3.0), execute `load("path/to/conf/mongodb/setup.js")`
 - install nginx
-- run `sbt "setup"` to create nginx conf file + start and stop scripts for mongodb and nginx
-- or `sbt "setupWin <parent dir of nginx.exe>"` for Windows
+- run `sbt "setup <kafka dir>"` to create start and stop scripts for mongodb, nginx, zookeeper, kafka
+- or `sbt "setupWin <nginx dir> <kafka dir>"` for Windows
 - execute `start` (or `start.bat`) and run `sbt run`

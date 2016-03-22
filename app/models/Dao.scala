@@ -29,6 +29,8 @@ trait UserDao extends BaseDao[User] {
   def list(nameQuery: String, limit: Int = 20): Seq[User]
 
   def add(name: String, pass: String): Either[(String, String), lang.Iterable[Key[User]]]
+
+  def getName(author: ObjectId) = get(author).map(_.name).getOrElse("")
 }
 
 trait ChatDao extends BaseDao[Chat] {

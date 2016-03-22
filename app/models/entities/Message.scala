@@ -18,18 +18,14 @@ case class Message(var id: Long,
                    var date: Date) {
   @Transient
   @Inject
-  var dao: Dao = _
-
-  @Transient
-  @Inject
   @Named("default")
   var dateFormat: SimpleDateFormat = _
 
   def this() = this(-1, "", null, null, null)
 
-  def json: JsObject = Json.obj(
+  def json(authorName: String): JsObject = Json.obj(
     "id" -> id,
-    "author" -> String.valueOf(dao.user.get(author).map(_.name).getOrElse("")),
+    "author" -> String.valueOf(authorName),
     "date" -> dateFormat.format(date),
     "text" -> text,
     "audio" -> audioId

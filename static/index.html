@@ -87,7 +87,6 @@
 
 <script>
 	var activeChatId;
-	var activeChatInterval;
 
 	$("#logoutBtn").click(function() {
 		Cookies.remove("ssession");
@@ -98,7 +97,6 @@
 		var text = $("#messageText");
 		postWithRecord("/api/v1/chat/history", { chatId: activeChatId, msg: text.val() }).done(function() {
 			text.val("");
-			refreshHistory();
 		}).fail(function(response) {
 			alert(response.responseText);
 		});
@@ -179,11 +177,8 @@
 				var btn = $('<label class="btn btn-default"><input type="radio">' + chat.title + '</label>');
 				btn.appendTo(chatList).click(function() {
 					$("#chat").empty();
-					lastMsgId = -1;
 					activeChatId = chat.id;
 					refreshHistory();
-					clearInterval(activeChatInterval);
-					activeChatInterval = setInterval(refreshHistory, 1000);
 				});
 				var removeBtn = $('<button type="button" class="close">&times;</button>');
 				removeBtn.prependTo(btn);
