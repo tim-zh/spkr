@@ -1,202 +1,202 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="UTF-8">
-	<title>spkr</title>
-	<link rel="stylesheet" href="css/bootstrap.min.css">
-	<link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8">
+  <title>spkr</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/styles.css">
 
-	<script src="js/jquery-2.2.0.min.js"></script>
-	<script src="js/js.cookie-2.0.4.min.js"></script>
-	<script src="js/bootstrap.min.js"></script>
-	<script src="js/main.js"></script>
+  <script src="js/jquery-2.2.0.min.js"></script>
+  <script src="js/js.cookie-2.0.4.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/main.js"></script>
 </head>
 <body>
 <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-	<div class="container">
-		<a class="navbar-brand" href="/">spkr</a>
-		<button class="btn-link btn-sm" id="logoutBtn" tabindex="-1">logout</button>
-	</div>
+  <div class="container">
+    <a class="navbar-brand" href="/">spkr</a>
+    <button class="btn-link btn-sm" id="logoutBtn" tabindex="-1">logout</button>
+  </div>
 </nav>
 
 <div class="container-fluid">
-	<div class="row">
-		<div class="col-xs-3">
+  <div class="row">
+    <div class="col-xs-3">
 
-			<div class="container-fluid">
-				<div class="row">
-					<form class="form-horizontal vertical-block" id="searchForm">
-						<div class="input-group">
-							<input type="text" placeholder="user search" class="form-control input-sm" name="q">
-				      <span class="input-group-btn">
-				        <button type="submit" class="btn btn-default btn-sm">search</button>
-				      </span>
-						</div>
-					</form>
-				</div>
-			</div>
+      <div class="container-fluid">
+        <div class="row">
+          <form class="form-horizontal vertical-block" id="searchForm">
+            <div class="input-group">
+              <input type="text" placeholder="user search" class="form-control input-sm" name="q">
+              <span class="input-group-btn">
+                <button type="submit" class="btn btn-default btn-sm">search</button>
+              </span>
+            </div>
+          </form>
+        </div>
+      </div>
 
-			<div class="btn-group-vertical btn-block" data-toggle="buttons" id="chatList"></div>
-		</div>
-		<div class="col-xs-9" style="padding: 20px">
-			<div class="well" style="overflow-y: scroll" id="chat"></div>
+      <div class="btn-group-vertical btn-block" data-toggle="buttons" id="chatList"></div>
+    </div>
+    <div class="col-xs-9" style="padding: 20px">
+      <div class="well" style="overflow-y: scroll" id="chat"></div>
 
-			<div class="row">
-				<div class="col-xs-2">
-					<button class="btn btn-default" style="width: 100%" type="button" id="sendBtn">send</button>
-				</div>
-				<div class="col-xs-10">
-					<button class="btn btn-default" type="button" id="startBtn">●</button>
-					<button class="btn btn-default" type="button" id="pauseBtn">▮▮</button>
-					<button class="btn btn-default" type="button" id="stopBtn">◾</button>
-					<span class="sound-level" id="soundLevel"></span>
-					<audio id="replay" style="vertical-align: middle" controls></audio>
-					<textarea class="form-control" style="margin-top: 10px" maxlength="140" id="messageText"></textarea>
-				</div>
-			</div>
-		</div>
-	</div>
+      <div class="row">
+        <div class="col-xs-2">
+          <button class="btn btn-default" style="width: 100%" type="button" id="sendBtn">send</button>
+        </div>
+        <div class="col-xs-10">
+          <button class="btn btn-default" type="button" id="startBtn">●</button>
+          <button class="btn btn-default" type="button" id="pauseBtn">▮▮</button>
+          <button class="btn btn-default" type="button" id="stopBtn">◾</button>
+          <span class="sound-level" id="soundLevel"></span>
+          <audio id="replay" style="vertical-align: middle" controls></audio>
+          <textarea class="form-control" style="margin-top: 10px" maxlength="140" id="messageText"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="modal fade" id="searchModal" tabindex="-1" role="dialog">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal">&times;</button>
-				add to contacts
-			</div>
-			<form class="modal-header input-group" id="searchForm2">
-	      <span class="input-group-btn">
-	        <button type="submit" class="btn btn-default btn-sm">search</button>
-	      </span>
-				<input type="text" placeholder="user search" class="form-control input-sm" name="q">
-			</form>
-			<div class="modal-body" id="searchResults">
-			</div>
-			<div class="modal-footer" id="selectedResults">
-			</div>
-			<div class="modal-footer input-group">
-	      <span class="input-group-btn">
-	        <button type="submit" class="btn btn-default btn-sm" id="createChat">create</button>
-	      </span>
-				<input type="text" placeholder="title" class="form-control input-sm" id="title">
-			</div>
-		</div>
-	</div>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        add to contacts
+      </div>
+      <form class="modal-header input-group" id="searchForm2">
+        <span class="input-group-btn">
+          <button type="submit" class="btn btn-default btn-sm">search</button>
+        </span>
+        <input type="text" placeholder="user search" class="form-control input-sm" name="q">
+      </form>
+      <div class="modal-body" id="searchResults">
+      </div>
+      <div class="modal-footer" id="selectedResults">
+      </div>
+      <div class="modal-footer input-group">
+        <span class="input-group-btn">
+          <button type="submit" class="btn btn-default btn-sm" id="createChat">create</button>
+        </span>
+        <input type="text" placeholder="title" class="form-control input-sm" id="title">
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-	var activeChatId;
+  var activeChatId;
 
-	$("#logoutBtn").click(function() {
-		Cookies.remove("ssession");
-		window.location = "login.html";
-	});
+  $("#logoutBtn").click(function() {
+    Cookies.remove("ssession");
+    window.location = "login.html";
+  });
 
-	$("#sendBtn").click(function() {
-		var text = $("#messageText");
-		postWithRecord("/api/v1/chat/history", { chatId: activeChatId, msg: text.val() }).done(function() {
-			text.val("");
-		}).fail(function(response) {
-			alert(response.responseText);
-		});
-	});
+  $("#sendBtn").click(function() {
+    var text = $("#messageText");
+    postWithRecord("/api/v1/chat/history", { chatId: activeChatId, msg: text.val() }).done(function() {
+      text.val("");
+    }).fail(function(response) {
+      alert(response.responseText);
+    });
+  });
 
-	$("#searchForm").submit(function(event) {
-		event.preventDefault();
-		$.get("/api/v1/user", $("#searchForm").serialize(), function(data) {
-			var modal = $("#searchModal");
-			var searchResultsTag = $("#searchResults");
-			var selectedResultsTag = $("#selectedResults");
-			modal.on("hidden.bs.modal", function() {
-				searchResultsTag.empty();
-				selectedResultsTag.empty();
-				$("#title").val("");
-			});
-			var participants = [];
-			appendSearchResults(data, participants, searchResultsTag, selectedResultsTag);
-			$("#createChat").click(function() {
-				$.post("/api/v1/chat", { title: $("#title").val(), "participants[]": participants }, function() {
-					modal.modal("hide");
-					refreshChats();
-				}).fail(function(response) {
-					alert(response.responseText);
-				});
-			});
-			$("#searchForm")[0].reset();
-			modal.modal("show");
-		}).fail(function(response) {
-			alert(response.responseText);
-		});
-	});
-	$("#searchForm2").submit(function(event) {
-		event.preventDefault();
-		$.get("/api/v1/user", $("#searchForm2").serialize(), function(data) {
-			var searchResultsTag = $("#searchResults");
-			var selectedResultsTag = $("#selectedResults");
-			searchResultsTag.empty();
-			var participants = [];
-			appendSearchResults(data, participants, searchResultsTag, selectedResultsTag);
-			$("#searchForm2")[0].reset();
-		}).fail(function(response) {
-			alert(response.responseText);
-		});
-	});
-	function appendSearchResults(response, participants, searchResultsTag, selectedResultsTag) {
-		response.forEach(function(user) {
-			var btn = $('<button type="submit" class="btn btn-default btn-sm" style="margin: 10px">' + user + '</button>');
-			btn.appendTo(searchResultsTag).click(function() {
-				if (participants.indexOf(user) != -1) {
-					participants.splice(participants.indexOf(user), 1);
-					btn.detach().appendTo(searchResultsTag);
-				} else {
-					participants.push(user);
-					btn.detach().appendTo(selectedResultsTag);
-				}
-			});
-		});
-	}
+  $("#searchForm").submit(function(event) {
+    event.preventDefault();
+    $.get("/api/v1/user", $("#searchForm").serialize(), function(data) {
+      var modal = $("#searchModal");
+      var searchResultsTag = $("#searchResults");
+      var selectedResultsTag = $("#selectedResults");
+      modal.on("hidden.bs.modal", function() {
+        searchResultsTag.empty();
+        selectedResultsTag.empty();
+        $("#title").val("");
+      });
+      var participants = [];
+      appendSearchResults(data, participants, searchResultsTag, selectedResultsTag);
+      $("#createChat").click(function() {
+        $.post("/api/v1/chat", { title: $("#title").val(), "participants[]": participants }, function() {
+          modal.modal("hide");
+          refreshChats();
+        }).fail(function(response) {
+          alert(response.responseText);
+        });
+      });
+      $("#searchForm")[0].reset();
+      modal.modal("show");
+    }).fail(function(response) {
+      alert(response.responseText);
+    });
+  });
+  $("#searchForm2").submit(function(event) {
+    event.preventDefault();
+    $.get("/api/v1/user", $("#searchForm2").serialize(), function(data) {
+      var searchResultsTag = $("#searchResults");
+      var selectedResultsTag = $("#selectedResults");
+      searchResultsTag.empty();
+      var participants = [];
+      appendSearchResults(data, participants, searchResultsTag, selectedResultsTag);
+      $("#searchForm2")[0].reset();
+    }).fail(function(response) {
+      alert(response.responseText);
+    });
+  });
+  function appendSearchResults(response, participants, searchResultsTag, selectedResultsTag) {
+    response.forEach(function(user) {
+      var btn = $('<button type="submit" class="btn btn-default btn-sm" style="margin: 10px">' + user + '</button>');
+      btn.appendTo(searchResultsTag).click(function() {
+        if (participants.indexOf(user) != -1) {
+          participants.splice(participants.indexOf(user), 1);
+          btn.detach().appendTo(searchResultsTag);
+        } else {
+          participants.push(user);
+          btn.detach().appendTo(selectedResultsTag);
+        }
+      });
+    });
+  }
 
-	if (! getSessionCookie("sname"))
-		window.location = "login.html";
-	else {
-		var chat = $("#chat");
-		chat[0].style.height =
-			document.body.clientHeight - $(".navbar").height() - chat.parent().height() + "px";
-		refreshChats();
-		connectToChat();
-		if (initRecorder)
-			initRecorder($("#startBtn"), $("#pauseBtn"), $("#stopBtn"), $("#replay"), $("#soundLevel"));
-	}
+  if (! getSessionCookie("sname"))
+    window.location = "login.html";
+  else {
+    var chat = $("#chat");
+    chat[0].style.height =
+      document.body.clientHeight - $(".navbar").height() - chat.parent().height() + "px";
+    refreshChats();
+    connectToChat();
+    if (initRecorder)
+      initRecorder($("#startBtn"), $("#pauseBtn"), $("#stopBtn"), $("#replay"), $("#soundLevel"));
+  }
 
-	function refreshChats() {
-		$.get("/api/v1/chat", function(data) {
-			var chatList = $("#chatList");
-			chatList.empty();
-			data.forEach(function(chat) {
-				var btn = $('<label class="btn btn-default"><input type="radio">' + chat.title + '</label>');
-				btn.appendTo(chatList).click(function() {
-					$("#chat").empty();
-					activeChatId = chat.id;
-					refreshHistory();
-				});
-				var removeBtn = $('<button type="button" class="close">&times;</button>');
-				removeBtn.prependTo(btn);
-				removeBtn.click(function(e) {
-					e.stopPropagation();
-					$.ajax({
-						type: "DELETE",
-						url: "api/v1/chat?" + $.param({ id: chat.id })
-					}).done(function() {
-						btn.remove();
-						activeChatId = undefined;
-					}).fail(function(response) {
-						alert(response.responseText);
-					});
-				});
-			});
-		});
-	}
+  function refreshChats() {
+    $.get("/api/v1/chat", function(data) {
+      var chatList = $("#chatList");
+      chatList.empty();
+      data.forEach(function(chat) {
+        var btn = $('<label class="btn btn-default"><input type="radio">' + chat.title + '</label>');
+        btn.appendTo(chatList).click(function() {
+          $("#chat").empty();
+          activeChatId = chat.id;
+          refreshHistory();
+        });
+        var removeBtn = $('<button type="button" class="close">&times;</button>');
+        removeBtn.prependTo(btn);
+        removeBtn.click(function(e) {
+          e.stopPropagation();
+          $.ajax({
+            type: "DELETE",
+            url: "api/v1/chat?" + $.param({ id: chat.id })
+          }).done(function() {
+            btn.remove();
+            activeChatId = undefined;
+          }).fail(function(response) {
+            alert(response.responseText);
+          });
+        });
+      });
+    });
+  }
 </script>
 </body>
 </html>

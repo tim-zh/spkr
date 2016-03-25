@@ -47,6 +47,7 @@ val setup = inputKey[Unit]("create nginx.conf and start/stop scripts for nginx a
 
 setup := {
   createNginxConf.value
+  new File("db").mkdir()
   val args = Def.spaceDelimited("<arg>").parsed
   val kafkaPath = args(0)
   val basePath = baseDirectory.value.getAbsolutePath
@@ -57,7 +58,7 @@ setup := {
          |mongod --dbpath $basePath/db &
          |cd $kafkaPath &
          |bin/zookeeper-server-start.sh config/zookeeper.properties &
-         |bin/kafka-server-start.bat config/server.properties &
+         |bin/kafka-server-start.sh config/server.properties &
          |wait""".stripMargin
     pw.print(content)
   }
@@ -76,6 +77,7 @@ val setupWin = inputKey[Unit]("create nginx.conf and start/stop scripts for ngin
 
 setupWin := {
   createNginxConf.value
+  new File("db").mkdir()
   val args = Def.spaceDelimited("<arg>").parsed
   val nginxPath = args(0)
   val kafkaPath = args(1)

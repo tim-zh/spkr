@@ -11,10 +11,10 @@ class UserSpec extends BasicSpec {
     val controller = app.injector.instanceOf[CUser]
     val dao = app.injector.instanceOf[Dao]
     val request = FakeRequest("GET", "/v1/user")
-
     dao.user.add("a", "a")
     dao.user.add("b", "b")
     dao.user.add("ba", "ba")
+
     val result = controller.search("b").apply(request)
 
     contentAsJson(result) shouldBe Json.arr("b", "ba")
@@ -23,9 +23,9 @@ class UserSpec extends BasicSpec {
   it should "authenticate a valid user" in {
     val controller = app.injector.instanceOf[CUser]
     val dao = app.injector.instanceOf[Dao]
+    dao.user.add("nn", "pp")
     val request = userRequest("/v1/authenticate", "nn", "pp")
 
-    dao.user.add("nn", "pp")
     val result = call(controller.authenticate(), request)
 
     status(result) shouldBe OK
@@ -35,9 +35,9 @@ class UserSpec extends BasicSpec {
   it should "not authenticate an invalid user" in {
     val controller = app.injector.instanceOf[CUser]
     val dao = app.injector.instanceOf[Dao]
+    dao.user.add("nn", "pp")
     val request = userRequest("/v1/authenticate", "nn2", "pp2")
 
-    dao.user.add("nn", "pp")
     val result = call(controller.authenticate(), request)
 
     status(result) shouldBe BAD_REQUEST

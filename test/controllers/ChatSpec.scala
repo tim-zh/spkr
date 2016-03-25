@@ -59,4 +59,11 @@ class ChatSpec extends BasicSpec {
     resultList2Seq.size shouldBe 1
     resultList2Seq should contain(resultTitles(1))
   }
+
+  it should "reject requests from unauthorized users" in {
+    val controller = app.injector.instanceOf[CChat]
+    testSecuredEndpoint(controller.create(), "/v1/chat", "POST")
+    testSecuredEndpoint(controller.delete(), "/v1/chat", "DELETE")
+    testSecuredEndpoint(controller.list(), "/v1/chat", "GET")
+  }
 }
