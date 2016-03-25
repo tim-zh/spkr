@@ -11,13 +11,8 @@ class ModelsSpec extends BasicSpec {
   "Message" should "convert itself to json" in {
     val authorId = new ObjectId
     val date = new Date(12345678)
-    val dateStr = new models.ModelsModule().defaultDateFormat.format(date)
-    val msg = app.injector.instanceOf[Message]
-    msg.id = 123
-    msg.text = "text1"
-    msg.audioId = "aId"
-    msg.author = authorId
-    msg.date = date
+    val dateStr = Message.dateFormat.format(date)
+    val msg = Message(123, "text1", "aId", authorId, date)
     val user = User("N", "", null)
     user.id = authorId
     app.injector.instanceOf[Dao].user.save(user)

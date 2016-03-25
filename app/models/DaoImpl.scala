@@ -1,18 +1,22 @@
 package models
 
-
 import com.google.inject.Inject
-import com.mongodb.{WriteResult, DuplicateKeyException}
+import com.mongodb.{MongoClient, DuplicateKeyException, WriteResult}
 import models.entities._
 import org.bson.types.ObjectId
-import scala.collection.JavaConversions._
+import org.mongodb.morphia.Morphia
 
+import scala.collection.JavaConversions._
 import scala.reflect._
 
-class DaoImpl extends Dao {
-  @Inject
-  var datastore: DSImpl = _
-
+class DaoImpl @Inject() (mongoClient: MongoClient) extends Dao {
+  val datastore: DSImpl = {
+    val morphia = new Morphia
+    morphia.mapPackage("app.models.entities")
+    val result = new DSImpl(morphia, mongoClient, "test")
+    result.ensureIndexes()
+    result
+  }
   override val user: UserDao = new UserDaoImpl(this)
   override val chat: ChatDao = new ChatDaoImpl(this)
 }
