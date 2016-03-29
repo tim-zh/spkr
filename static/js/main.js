@@ -136,8 +136,8 @@ function createAudio(arraybuffer) {
     socket.onmessage = messageCallback;
     return socket;
   }
-  function onChatMessage(message) {
-    var history = JSON.parse(message.data);
+  window.onChatMessage = function(message) {
+    var history = typeof message.data == "string" ? JSON.parse(message.data) : message;
     if (! history.length)
       return;
     var chat = $("#chat");

@@ -176,8 +176,12 @@
       data.forEach(function(chat) {
         var btn = $('<label class="btn btn-default"><input type="radio">' + chat.title + '</label>');
         btn.appendTo(chatList).click(function() {
-          $("#chat").empty();
+          var chat = $("#chat");
+          chat.empty();
           activeChatId = chat.id;
+          $('<a class="btn-link">show all</a>').appendTo(chat).click(function() {
+            $.get("/api/v1/chat/history", { id: activeChatId }, onChatMessage);
+          });
           refreshHistory();
         });
         var removeBtn = $('<button type="button" class="close">&times;</button>');
