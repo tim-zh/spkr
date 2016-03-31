@@ -164,7 +164,9 @@
     chat[0].style.height =
       document.body.clientHeight - $(".navbar").height() - chat.parent().height() + "px";
     refreshChats();
-    connectToChat();
+    (function ctc() {
+      connectToChat(activeChatId, ctc);
+    })();
     if (initRecorder)
       initRecorder($("#startBtn"), $("#pauseBtn"), $("#stopBtn"), $("#replay"), $("#soundLevel"));
   }
@@ -176,13 +178,13 @@
       data.forEach(function(chat) {
         var btn = $('<label class="btn btn-default"><input type="radio">' + chat.title + '</label>');
         btn.appendTo(chatList).click(function() {
-          var chat = $("#chat");
-          chat.empty();
+          $("#chat").empty();
+					lastMsgId = -1;
           activeChatId = chat.id;
-          $('<a class="btn-link">show all</a>').appendTo(chat).click(function() {
-            $.get("/api/v1/chat/history", { id: activeChatId }, onChatMessage);
+          $('<a class="btn-link">show all</a>').appendTo($("#chat")).click(function() {
+            refreshHistoryFull(activeChatId);
           });
-          refreshHistory();
+          refreshHistory(activeChatId);
         });
         var removeBtn = $('<button type="button" class="close">&times;</button>');
         removeBtn.prependTo(btn);

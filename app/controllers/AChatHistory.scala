@@ -2,7 +2,7 @@ package controllers
 
 import akka.actor.{Actor, ActorRef, Props}
 import models.Dao
-import play.api.libs.json.{JsArray, JsValue}
+import play.api.libs.json.{Json, JsArray, JsValue}
 import util.Consumer
 
 object AChatHistory {
@@ -11,15 +11,15 @@ object AChatHistory {
 
 class AChatHistory(out: ActorRef, dao: Dao) extends Actor {
   val consumer = new Consumer(1000)
-
-  override def preStart() =
-    consumer.start { messages =>
-      out ! JsArray(messages)
-    }
+  consumer.start { messages =>
+    out ! JsArray(messages.map(Json.parse))
+  }
 
   override def receive = {
     case msg: JsValue =>
-      (msg \ "chatId").asOpt[String].foreach(consumer.change)
+      (msg \ "chatId").asOpt[String].zip((msg \ "lastMsgId").asOpt[Long]).foreach {
+        case (chat, offset) => consumer.change(chat, offset)
+      }
   }
 
   override def postStop() =

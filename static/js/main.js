@@ -161,18 +161,29 @@ function createAudio(arraybuffer) {
         });
       }
     });
+		lastMsgId = history[history.length - 1].id;
     if (scrollDown)
       chat.animate({ scrollTop: chat[0].scrollHeight }, { duration: 1000, queue: false });
   }
 
   var chatSocket;
 
-  window.connectToChat = function() {
-    chatSocket = newSocket(onChatMessage, connectToChat);
+	window.lastMsgId = -1;
+
+  window.connectToChat = function(chatId, closeCallback) {
+    chatSocket = newSocket(onChatMessage, closeCallback);
+    if (chatId)
+      refreshHistory(chatId);
   };
-  window.refreshHistory = function() {
+  window.refreshHistory = function(chatId) {
     if (! chatSocket.ready)
       return;
-    chatSocket.send(JSON.stringify({ chatId: activeChatId }));
+    chatSocket.send(JSON.stringify({ chatId: chatId, lastMsgId: lastMsgId }));
   };
+  window.refreshHistoryFull = function(chatId) {
+    $.get("/api/v1/chat/history", { id: chatId }, function(data) {
+      $("#chat").empty();
+      onChatMessage(data);
+    });
+  }
 })();
