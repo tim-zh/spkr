@@ -161,14 +161,14 @@ function createAudio(arraybuffer) {
         });
       }
     });
-		lastMsgId = history[history.length - 1].id;
+    lastMsgId = history[history.length - 1].id;
     if (scrollDown)
       chat.animate({ scrollTop: chat[0].scrollHeight }, { duration: 1000, queue: false });
-  }
+  };
 
   var chatSocket;
 
-	window.lastMsgId = -1;
+  window.lastMsgId = -1;
 
   window.connectToChat = function(chatId, closeCallback) {
     chatSocket = newSocket(onChatMessage, closeCallback);

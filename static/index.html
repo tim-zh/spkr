@@ -179,9 +179,9 @@
         var btn = $('<label class="btn btn-default"><input type="radio">' + chat.title + '</label>');
         btn.appendTo(chatList).click(function() {
           $("#chat").empty();
-					lastMsgId = -1;
+          lastMsgId = -1;
           activeChatId = chat.id;
-          $('<a class="btn-link">show all</a>').appendTo($("#chat")).click(function() {
+          $('<a class="btn btn-link">show all</a>').appendTo($("#chat")).click(function() {
             refreshHistoryFull(activeChatId);
           });
           refreshHistory(activeChatId);

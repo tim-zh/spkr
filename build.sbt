@@ -20,10 +20,10 @@ routesGenerator := InjectedRoutesGenerator
 
 fork in run := true
 
-val createNginxConf = taskKey[Unit]("create nginx.conf")
+val createNginxConf = taskKey[Unit]("create nginx_win.conf")
 
 createNginxConf := {
-  val generatedConfigFile = new File(baseDirectory.value/"nginx"/"nginx.conf" getAbsolutePath)
+  val generatedConfigFile = new File(baseDirectory.value/"nginx"/"nginx_win.conf" getAbsolutePath)
   if (! generatedConfigFile.exists()) {
     val replacements = Seq(
       "cores" -> (java.lang.Runtime.getRuntime.availableProcessors() + ""),
@@ -31,7 +31,7 @@ createNginxConf := {
       "static" -> (baseDirectory.value.getAbsolutePath.replace("\\", "/") + "/static")
     )
     val pw = new java.io.PrintWriter(generatedConfigFile)
-    scala.io.Source.fromFile(baseDirectory.value/"nginx"/"nginx.template.conf" getAbsolutePath).
+    scala.io.Source.fromFile(baseDirectory.value/"nginx"/"nginx_win.template.conf" getAbsolutePath).
         getLines().
         map { line =>
           replacements.foldLeft(line) {
@@ -39,41 +39,11 @@ createNginxConf := {
           }
         }.foreach(pw.println)
     pw.close()
-    println("nginx.conf created")
+    println("nginx_win.conf created")
   }
 }
 
-val setup = inputKey[Unit]("create nginx.conf and start/stop scripts for nginx and mongodb")
-
-setup := {
-  createNginxConf.value
-  new File("db").mkdir()
-  val args = Def.spaceDelimited("<arg>").parsed
-  val kafkaPath = args(0)
-  val basePath = baseDirectory.value.getAbsolutePath
-  write("start") { pw =>
-    val content =
-      s"""#!/bin/bash
-         |nginx -c $basePath/nginx/nginx.conf &
-         |mongod --dbpath $basePath/db &
-         |cd $kafkaPath &
-         |bin/zookeeper-server-start.sh config/zookeeper.properties &
-         |bin/kafka-server-start.sh config/server.properties &
-         |wait""".stripMargin
-    pw.print(content)
-  }
-  "chmod u+x start".!
-  write("stop") { pw =>
-    val content =
-      s"""#!/bin/bash
-         |nginx -c $basePath/nginx/nginx.conf -s quit
-         |mongod --shutdown """.stripMargin
-    pw.print(content)
-  }
-  "chmod u+x stop".!
-}
-
-val setupWin = inputKey[Unit]("create nginx.conf and start/stop scripts for nginx and mongodb")
+val setupWin = inputKey[Unit]("create nginx_win.conf and start/stop scripts for nginx, mongodb and kafka")
 
 setupWin := {
   createNginxConf.value
@@ -85,21 +55,21 @@ setupWin := {
   write("start.bat") { pw =>
     val content =
       s"""cd $nginxPath
-         |start cmd /c "nginx.exe -c $basePath\\nginx\\nginx.conf"
-         |start cmd /c "mongod --dbpath $basePath\\db"
-         |cd $kafkaPath
-         |start cmd /c "bin\\windows\\zookeeper-server-start.bat config\\zookeeper.properties"
-         |start cmd /c "bin\\windows\\kafka-server-start.bat config\\server.properties" """.stripMargin
+          |start cmd /c "nginx.exe -c $basePath\\nginx\\nginx_win.conf"
+          |start cmd /c "mongod --dbpath $basePath\\db"
+          |cd $kafkaPath
+          |start cmd /c "bin\\windows\\zookeeper-server-start.bat config\\zookeeper.properties"
+          |start cmd /c "bin\\windows\\kafka-server-start.bat config\\server.properties" """.stripMargin
     pw.print(content)
   }
   write("stop.bat") { pw =>
     val content =
       s"""cd $nginxPath
-         |start cmd /c "nginx.exe -c $basePath\\nginx\\nginx.conf -s quit"
-         |start cmd /c "mongo admin --eval db.shutdownServer()"
-         |cd $kafkaPath
-         |start cmd /c "bin\\windows\\kafka-server-stop.bat"
-         |start cmd /c "bin\\windows\\zookeeper-server-stop.bat" """.stripMargin
+          |start cmd /c "nginx.exe -c $basePath\\nginx\\nginx_win.conf -s quit"
+          |start cmd /c "mongo admin --eval db.shutdownServer()"
+          |cd $kafkaPath
+          |start cmd /c "bin\\windows\\kafka-server-stop.bat"
+          |start cmd /c "bin\\windows\\zookeeper-server-stop.bat" """.stripMargin
     pw.print(content)
   }
 }

@@ -4,10 +4,8 @@ target
 /.idea_modules
 /RUNNING_PID
 nginx/*.log
-nginx/nginx.conf
+nginx/nginx_win.conf
 nginx/nginx.pid
 db
-start
-stop
 start.bat
 stop.bat

@@ -1,5 +1,20 @@
-- install mongodb (3.0), execute `load("path/to/conf/mongodb/setup.js")`
+### linux
+- install docker
+- execute
+    - `docker run --name=mongodb -d --net=host -v <spkr/db>:/data/db mongo:3.0 --storageEngine wiredTiger`
+    - `docker exec mongodb mongo < conf/mongodb/setup.js`
+    - `docker run --name=nginx -d --net=host -v <spkr/nginx/nginx.conf>:/etc/nginx/nginx.conf:ro -v <spkr/static>:/usr/share/nginx/html:ro nginx:1.9`
+    - `docker build -f kafka/zookeeper.Dockerfile -t kafka-zookeeper:0.9 kafka`
+    - `docker build -f kafka/kafka.Dockerfile -t kafka:0.9 kafka`
+    - `docker run --name=zk -d --net=host kafka-zookeeper:0.9`
+    - `docker run --name=kafka -d --net=host kafka:0.9`
+    - `sbt run`
+
+### windows
 - install nginx
-- run `sbt "setup <kafka dir>"` to create start and stop scripts for mongodb, nginx, zookeeper, kafka
-- or `sbt "setupWin <nginx dir> <kafka dir>"` for Windows
-- execute `start` (or `start.bat`) and run `sbt run`
+- install mongodb (3.0)
+- execute
+    - `mongo < conf/mongodb/setup.js`
+    - `sbt "setupWin <nginx dir> <kafka dir>"`
+    - `start.bat`
+    - `sbt run`
