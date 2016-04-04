@@ -46,7 +46,7 @@ class CChatHistory @Inject() (dao: Dao, producer: Producer) extends Controller w
 
     Form(mapping(
       "chatId" -> nonEmptyText,
-      "msg" -> text(1, 140)
+      "msg" -> text(0, 140)
     )(Data.apply)(Data.unapply)).bindFromRequest.fold(
       bad =>
         badRequestJson(bad.errors),
@@ -61,17 +61,21 @@ class CChatHistory @Inject() (dao: Dao, producer: Producer) extends Controller w
             chatDao.saveAudio(audio)
             audio.id.toString
           } getOrElse ""
-          val history = chatOpt.get.orderedHistory
-          val newId =
-            if (history.nonEmpty)
-              history.get(history.size - 1).id + 1
-            else
-              0
-          val message = Message(newId, form.message, audioId, request.user.id, new Date)
-          chatOpt.get.history :+= message
-          chatDao.save(chatOpt.get)
-          producer.send(new ProducerRecord[String, String](form.chatId, message.json(request.user.name).toString))
-          Ok
+          if (form.message.isEmpty && audioId.isEmpty)
+            badRequestJson("msg" -> "error.minLength")
+          else {
+            val history = chatOpt.get.orderedHistory
+            val newId =
+              if (history.nonEmpty)
+                history.get(history.size - 1).id + 1
+              else
+                0
+            val message = Message(newId, form.message, audioId, request.user.id, new Date)
+            chatOpt.get.history :+= message
+            chatDao.save(chatOpt.get)
+            producer.send(new ProducerRecord[String, String](form.chatId, message.json(request.user.name).toString))
+            Ok
+          }
         }
       }
     )

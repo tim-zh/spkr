@@ -194,6 +194,7 @@
             type: "DELETE",
             url: "api/v1/chat?" + $.param({ id: chat.id })
           }).done(function() {
+            $("#chat").empty();
             btn.remove();
             activeChatId = undefined;
           }).fail(function(response) {
