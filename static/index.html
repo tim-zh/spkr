@@ -65,7 +65,7 @@
         <button type="button" class="close" data-dismiss="modal">&times;</button>
         add to contacts
       </div>
-      <form class="modal-header input-group" id="searchForm2">
+      <form class="modal-header input-group" id="popupSearchForm">
         <span class="input-group-btn">
           <button type="submit" class="btn btn-default btn-sm">search</button>
         </span>
@@ -129,15 +129,15 @@
       alert(response.responseText);
     });
   });
-  $("#searchForm2").submit(function(event) {
+  $("#popupSearchForm").submit(function(event) {
     event.preventDefault();
-    $.get("/api/v1/user", $("#searchForm2").serialize(), function(data) {
+    $.get("/api/v1/user", $("#popupSearchForm").serialize(), function(data) {
       var searchResultsTag = $("#searchResults");
       var selectedResultsTag = $("#selectedResults");
       searchResultsTag.empty();
       var participants = [];
       appendSearchResults(data, participants, searchResultsTag, selectedResultsTag);
-      $("#searchForm2")[0].reset();
+      $("#popupSearchForm")[0].reset();
     }).fail(function(response) {
       alert(response.responseText);
     });
@@ -173,37 +173,47 @@
 
   function refreshChats() {
     $.get("/api/v1/chat", function(data) {
+      var chat = $("#chat");
       var chatList = $("#chatList");
       chatList.empty();
-      data.forEach(function(chat) {
-        var btn = $('<label class="btn btn-default"><input type="radio">' + chat.title + '</label>');
+      data.forEach(function(chatInfo) {
+        var btn = $('<label class="btn btn-default"><input type="radio">' + chatInfo.title + '</label>');
         btn.appendTo(chatList).click(function() {
-          $("#chat").empty();
+          clearChat();
           lastMsgId = -1;
-          activeChatId = chat.id;
-          $('<a class="btn btn-link">show all</a>').appendTo($("#chat")).click(function() {
+          activeChatId = chatInfo.id;
+          $('<a class="btn btn-link">show all</a>').appendTo(chat).click(function() {
             refreshHistoryFull(activeChatId);
           });
           refreshHistory(activeChatId);
         });
-        var removeBtn = $('<button type="button" class="close">&times;</button>');
-        removeBtn.prependTo(btn);
-        removeBtn.click(function(e) {
-          e.stopPropagation();
-          $.ajax({
-            type: "DELETE",
-            url: "api/v1/chat?" + $.param({ id: chat.id })
-          }).done(function() {
-            $("#chat").empty();
-            btn.remove();
-            activeChatId = undefined;
-          }).fail(function(response) {
-            alert(response.responseText);
-          });
-        });
+        buttonRemoveChat(btn, chatInfo.id);
       });
     });
   }
+
+  function buttonRemoveChat(parent, chatId) {
+    var removeBtn = $('<button type="button" class="close">&times;</button>');
+    removeBtn.prependTo(parent);
+    removeBtn.click(function(e) {
+      e.stopPropagation();
+      $.ajax({
+        type: "DELETE",
+        url: "api/v1/chat?" + $.param({ id: chatId })
+      }).done(function() {
+        clearChat();
+        parent.remove();
+        activeChatId = undefined;
+      }).fail(function(response) {
+        alert(response.responseText);
+      });
+    });
+  }
+
+  var clearChat = (function () {
+    var chat = $("#chat");
+    return function () { chat.empty(); };
+  })();
 </script>
 </body>
 </html>

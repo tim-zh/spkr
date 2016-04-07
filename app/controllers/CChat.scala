@@ -19,10 +19,7 @@ class CChat @Inject() (dao: Dao, producer: Producer) extends Controller with Con
     val titleMaxLength = 50
     var title = request.body.asFormUrlEncoded.flatMap(_.get("title")).map(_.head).getOrElse("")
     if (title.isEmpty)
-      title = if (participants.size == 1)
-        participants.head
-      else
-        participants.mkString(", ")
+      title = (request.user.name +: participants).mkString(", ")
     if (participants.isEmpty)
       badRequestJson("users" -> "empty")
     else {
