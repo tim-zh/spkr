@@ -5,8 +5,6 @@ import play.api.data.FormError
 import play.api.libs.json.Json
 import play.api.mvc.{Results, RequestHeader}
 
-import scala.reflect.ClassTag
-
 trait ControllerUtil {
   object Secured extends play.api.mvc.Security.AuthenticatedBuilder(new ControllerUtil {}.getUserFromRequest)
 
@@ -14,7 +12,7 @@ trait ControllerUtil {
     Json.arr(Json.obj(message._1 -> message._2))
   }
 
-  def badRequestJson[T <: FormError](messages: Seq[T])(implicit tag: ClassTag[T]) = Results.BadRequest {
+  def badRequestJson[T <: FormError](messages: Seq[T]) = Results.BadRequest {
     Json.arr(messages.map { err => Json.obj(err.key -> err.message) })
   }
 
