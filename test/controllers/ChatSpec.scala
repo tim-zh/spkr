@@ -15,7 +15,7 @@ class ChatSpec extends BasicSpec {
     val requestAdd = FakeRequest("POST", "/v1/chat").withSession(("sname", "a")).
         withFormUrlEncodedBody("title" -> (title + "!"), "participants[]" -> "b", "participants[]" -> "c")
     val requestAdd2 = FakeRequest("POST", "/v1/chat").withSession(("sname", "a")).
-        withFormUrlEncodedBody("title" -> "", "participants[]" -> "a", "participants[]" -> "b")
+        withFormUrlEncodedBody("title" -> "", "participants[]" -> "b")
     dao.user.add("a", "a")
     dao.user.add("b", "b")
     dao.user.add("c", "c")

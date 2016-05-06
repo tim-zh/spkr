@@ -3,10 +3,10 @@ package util
 import play.api.inject.{BindingKey, Injector}
 
 import scala.reflect.ClassTag
-import scala.reflect.classTag
 
 case class InjectorMerger(var first: Injector, var second: Injector) extends Injector {
-  def instanceOf[T: ClassTag] = instanceOf(classTag[T].runtimeClass.asInstanceOf[Class[T]])
+  def instanceOf[T: ClassTag] =
+    instanceOf(implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]])
 
   def instanceOf[T](clazz: Class[T]): T =
     try

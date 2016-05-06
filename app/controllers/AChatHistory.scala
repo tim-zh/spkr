@@ -20,23 +20,21 @@ object AChatHistory {
 }
 
 class AChatHistory(out: ActorRef, dao: Dao) extends Actor {
-  var consumer: Consumer[String, String] = null
+  var consumer = None: Option[Consumer[String, String]]
 
   override def receive = {
     case msg: JsValue =>
       (msg \ "chatId").asOpt[String].zip((msg \ "lastMsgId").asOpt[Long]).foreach {
         case (chat, offset) =>
-          if (consumer != null)
-            consumer.wakeup()
-          consumer = listen(chat, { messages =>
+          consumer.foreach(_.wakeup())
+          consumer = Some(listen(chat, { messages =>
             out ! JsArray(messages.map(Json.parse))
-          }, offset)
+          }, offset))
       }
   }
 
   override def postStop() =
-    if (consumer != null)
-      consumer.wakeup()
+    consumer.foreach(_.wakeup())
 
   def listen(topic: String, onMessage: Seq[String] => Unit, offset: Long = -1, interval: Int = 100) = {
     var c: Consumer[String, String] = null
